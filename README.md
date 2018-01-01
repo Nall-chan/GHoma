@@ -18,7 +18,7 @@ von WLAN-Steckdosen vom Hersteller G-Homa.
 4. [Einrichten der Instanzen in IP-Symcon](#4-einrichten-der-instanzen-in-ip-symcon)
 5. [Anhang](#5-anhang)  
     1. [GUID der Module](#1-guid-der-module)
-    2. [Datenaustausch](#2-Datenaustausch)
+    2. [Hinweise](#2-hinweise)
     3. [Changlog](#3-changlog)
 6. [Lizenz](#6-lizenz)
 
