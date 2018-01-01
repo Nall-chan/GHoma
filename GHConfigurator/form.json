@@ -1,0 +1,131 @@
+{
+    "actions":
+            [{
+                    "type": "Button",
+                    "label": "Rescan network",
+                    "onClick": ""
+                }, {
+                    "type": "Label",
+                    "label": "IMPORTANT: You must close this page an reopen it to see the changes."
+                }, {
+                    "type": "Label",
+                    "label": "No plugs found!"
+                }, 
+                {
+                    "type": "Label",
+                    "label": "No new plugs found!"
+                }, {
+                    "type": "Label",
+                    "label": "No disconnected plugs found!"
+                }, {
+                    "type": "Label",
+                    "label": "List of all plugs and all instances:"
+                },
+                {
+                    "type": "List",
+                    "name": "Plugs",
+                    "rowCount": 15,
+                    "add": false,
+                    "delete": false,
+                    "sort": {
+                        "column": "Index",
+                        "direction": "ascending"
+                    },
+                    "columns": [{
+                            "label": "InstanceID",
+                            "name": "InstanceID",
+                            "width": "65px"
+                        }, {
+                            "label": "Type",
+                            "name": "PlugType",
+                            "width": "80px"
+                        }, {
+                            "label": "MAC",
+                            "name": "PlugMAC",
+                            "width": "90px"
+                        }, {
+                            "label": "IP-Address",
+                            "name": "PlugIP",
+                            "width": "100px"
+                        }, {
+                            "label": "Name",
+                            "name": "Name",
+                            "width": "auto"
+                        }
+                    ],
+                    "values": []
+                }, {
+                    "type": "Button",
+                    "label": "Create instance",
+                    "onClick": ""
+                }, {
+                    "type": "Button",
+                    "label": "Display config",
+                    "onClick": ""
+                }, {
+                    "type": "Button",
+                    "label": "Reconfigure for Symcon",
+                    "onClick": ""
+                }, {
+                    "type": "Label",
+                    "label": "----------------------------------------------------------------------------------------------"
+                }, {
+                    "name": "DHCP",
+                    "type": "CheckBox",
+                    "caption": "Use DHCP"
+                }, {
+                    "name": "IPAddress",
+                    "type": "ValidationTextBox",
+                    "caption": "IP-Address"
+                }, {
+                    "name": "Subnet",
+                    "type": "ValidationTextBox",
+                    "caption": "Subnetmask"
+                }, {
+                    "name": "Gateway",
+                    "type": "ValidationTextBox",
+                    "caption": "Gateway"
+                }, {
+                    "type": "Button",
+                    "label": "Write network config",
+                    "onClick": ""
+                }, {
+                    "type": "Label",
+                    "label": "----------------------------------------------------------------------------------------------"
+                }, {
+                    "name": "DNS",
+                    "type": "ValidationTextBox",
+                    "caption": "DNS"
+                }, {
+                    "type": "Button",
+                    "label": "Write DNS",
+                    "onClick": ""
+                }, {
+                    "type": "Label",
+                    "label": "----------------------------------------------------------------------------------------------"
+                }, {
+                    "name": "NTP",
+                    "type": "ValidationTextBox",
+                    "caption": "NTP"
+                }, {
+                    "type": "Button",
+                    "label": "Write NTP",
+                    "onClick": ""
+                }, {
+                    "type": "Label",
+                    "label": "----------------------------------------------------------------------------------------------"
+                }, {
+                    "name": "WSSSID",
+                    "type": "ValidationTextBox",
+                    "caption": "WLAN SSID"
+                }, {
+                    "name": "WSKEY",
+                    "type": "ValidationTextBox",
+                    "caption": "Key (only WPA2PSK)"
+                }, {
+                    "type": "Button",
+                    "label": "Write WLAN config",
+                    "onClick": ""
+                }
+            ]
+}

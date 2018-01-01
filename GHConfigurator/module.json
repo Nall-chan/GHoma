@@ -1,0 +1,11 @@
+{
+    "id": "{535EF8FE-EE78-4385-8B61-D118FAE5AE5A}",
+    "name": "GHoma Configurator",
+    "type": 4,
+    "vendor": "G-Homa",
+    "aliases":["G-Homa Configurator"],  
+    "parentRequirements": ["{79827379-F36E-4ADA-8A95-5F8D1DC92FA9}"],
+    "childRequirements": [],
+    "implemented": ["{018EF6B5-AB94-40C6-AA53-46943E824ACF}"],
+    "prefix": "GHOMA"    
+}

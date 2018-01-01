@@ -1,0 +1,11 @@
+{
+    "translations": {
+        "de": {
+            "Plug not connected": "Gerät nicht verbunden",
+            "Plug not response": "Gerät antwortet nicht",
+            "Invalid Ident": "Ungültiger Ident",
+            "Instance has no active Parent.": "Instanz hat keinen aktiven Parent.",
+            "Plug IP configuration needs to be done in the I/O instance.": "Geräte IP muss in der I/O Instanz eingetragen werden."
+        }
+    }
+}

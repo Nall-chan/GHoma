@@ -1,0 +1,37 @@
+{
+    "translations": {
+        "de": {
+            "Rescan network": "Netzwerk durchsuchen",
+            "IMPORTANT: You must close this page an reopen it to see the changes.": "WICHTIG: Diese Seite muss neu geöffnet werden um Änderungen anzuzeigen.",
+            "No plugs found!": "Keine Geräte gefunden!",
+            "Plugs found: %d": "Geräte gefunden: %d",
+            "New plugs: %d": "Neue Geräte: %d",
+            "Disconnected plugs: %d": "Getrennte Geräte: %d",
+            "No new plugs found!": "Keine neuen Geräte gefunden!",
+            "No disconnected plugs found!": "Keine unverbundenen Geräte gefunden!",
+            "List of all plugs and all instances:": "Liste aller Geräte und Instanzen:",
+            "InstanceID": "InstanzID",
+            "Type": "Typ",
+            "MAC": "MAC",
+            "IP-Address": "IP-Adresse",
+            "Name": "Name",
+            "Create instance": "Instanz erzeugen",
+            "Display config": "Konfig anzeigen",
+            "Reconfigure for Symcon": "Umkonfigurieren für Symcon",
+            "Use DHCP": "DHCP aktiv",
+            "Subnetmask": "Subnetmaske",
+            "Gateway": "Gateway",
+            "Write network config": "Schreibe Netzwerk-Konfig",
+            "Write DNS": "Schreibe DNS",
+            "Write NTP": "Schreibe NTP",
+            "Key (only WPA2PSK)": "Key (nur WPA2PSK)",
+            "Write WLAN config": "Schreibe WLAN-Konfig",
+            "unknow": "unbekannt",
+            "Please close this form, and reopen it!": "Bitte diese Seite schließen und neu öffnen!",
+            "No plug selected!": "Kein Gerät ausgewählt!",
+            "Error on create instance.": "Fehler mein erzeúgen der Instanz.",
+            "Error on reconfigure plug.": "Fehler beim umkonfigurieren des Gerätes.",
+            "Error on Read Data": "Fehler beim lesen der Daten"
+        }
+    }
+}

@@ -1,0 +1,11 @@
+{
+    "id": "{5F0CF4B0-7395-4ABF-B10F-AA0109A0F016}",
+    "name": "GHoma Plug",
+    "type": 3,
+    "vendor": "G-Homa",
+    "aliases": ["G-Homa Plug"],
+    "parentRequirements": ["{79827379-F36E-4ADA-8A95-5F8D1DC92FA9}"],
+    "childRequirements": [],
+    "implemented": ["{018EF6B5-AB94-40C6-AA53-46943E824ACF}"],
+    "prefix": "GHOMA"
+}
