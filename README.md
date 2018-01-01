@@ -70,7 +70,8 @@ Alternativ ist es auch über folgenden Weg auch IPS möglich:
 - Der Host von der IPS installation muss mit dem AP 'G-Homa' verbunden werden (DHCP muss aktiv sein!).  
 - Anschließend ist die Instanz 'G-Homa Configurator' zu öffnen. Wird kein Gerät angezeigt, so ist der Button 'Netzwerk durchsuchen' zu betätigen.  
 - Wird noch immer kein Gerät gefunden, so die übergeordnete Instanz 'Multicast-Socket' öffnen und einmal neu aktivieren.  
-- Das neu gefundene Gerät ist in der Liste des 'G-Homa Configurator' auszuwählen und anschließend können die WLAN-Daten im unteren Teil der Konfiguration eingetragen und anschließen mit dem Button 'Schreibe WLAN' an das Gerät zu übertragen.  
+- Das neu gefundene Gerät ist in der Liste des 'G-Homa Configurator' auszuwählen.  
+- Anschließend müssen die WLAN-Daten im unteren Teil der Konfiguration eingetragen werden und abschließen mit dem Button 'Schreibe WLAN' an das Gerät übertragen werden.  
 - Das Gerät startet neu und kann ab sofort mit IPS verwendet werden.  
 - Weitere Konfiguration siehe im [G-Homa Konfigurator:](GHConfigurator/)  
 
@@ -95,7 +96,7 @@ Alternativ ist es auch über folgenden Weg auch IPS möglich:
  da über einen langen Tastendruck der AP-Modus (unverschlüsselt!) aktiviert wird und  
  alle Daten ausgelesen werden können.  
  
- Dieses Modul trennt die Verbindung von den Geräten zur (chinesichen) Cloud.  
+ Dieses Modul trennt die Verbindung von den Geräten zur (chinesischen) Cloud.  
  IPS fungiert für die Geräte als Master und eine verlorene Verbindung zu IPS wird  
  mit einer blinkenden LED an den Geräten signalisiert.  
 
