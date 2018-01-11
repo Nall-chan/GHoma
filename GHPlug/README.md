@@ -58,8 +58,8 @@ Folgende Statusvariablen werden automatisch angelegt.
 
 | Name   | Typ     | Ident  | Beschreibung                                                                    |
 | :----: | :-----: | :----: | :-----------------------------------------------------------------------------: |
-| STATE  | boolean | STATE  | True wenn das Gerät eingeschaltet ist                                           |
-| BUTTON | boolean | BUTTON | Wird auf True aktualisiert, wenn das Gerät über die Gerätetaste betätigt wurde. |
+| STATE  | bool    | STATE  | True wenn das Gerät eingeschaltet ist                                           |
+| BUTTON | bool    | BUTTON | Wird auf True aktualisiert, wenn das Gerät über die Gerätetaste betätigt wurde. |
 
 Es werden keine neuen Profile angelegt.
 
