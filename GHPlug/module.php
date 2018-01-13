@@ -363,12 +363,6 @@ class GHomaPlug extends IPSModule
                   SchaltenEin remote 01 0A E0 32 23 94 72 86 FF FE 01 11 11 00 00 01 00 00 00 FF
                   SchaltenEin remote 01 0A E0 35 23 D3 2B 8E FF FE 01 11 11 00 00 01 00 00 00 FF
                   SchaltenAus lokal  01 0A E0 32 23 94 72 86 FF FE 01 81 11 00 00 01 00 00 00 00
-                  Aus 01 0A E0 35 23 D3 2B 8E FF FE 01 81 11 00 00 01 00 00 00 00
-                  ein 01 0A E0 35 23 D3 2B 8E FF FE 01 81 11 00 00 01 00 00 00 FF
-                  01 01 0A E0 35 23 D3 2B 8E FF FE 00 00 10 11 00 00 01 00 00 00 00
-                  01 01 0A E0 35 23 D3 2B 8E FF FE 00 00 10 11 00 00 01 00 00 00 FF
-                  01 0A E0 35 23 D3 2B 8E FF FE 01 11 11 00 00 01 00 00 00 00
-                  01 0A E0 35 23 D3 2B 8E FF FE 01 11 11 00 00 01 00 00 00 FF
                  */
                 switch (ord($Message->Payload[12]))
                 {
@@ -384,8 +378,8 @@ class GHomaPlug extends IPSModule
                             case 0x01: // Watt
                                 $this->SetValueFloat('Watt', $Value / 100, 'Watt.14490');
                                 break;
-                            case 0x02: // ??
-
+                            case 0x02: // Verbrauch
+                                $this->SetValueFloat('Verbrauch', $Value / 100, 'Electricity');
                                 break;
                             case 0x03: // Volt
                                 $this->SetValueFloat('Volt', $Value / 100, 'Volt.230');
