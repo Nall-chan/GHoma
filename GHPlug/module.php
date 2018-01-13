@@ -379,7 +379,7 @@ class GHomaPlug extends IPSModule
                                 $this->SetValueFloat('Watt', $Value / 100, 'Watt.14490');
                                 break;
                             case 0x02: // Verbrauch
-                                $this->SetValueFloat('Verbrauch', $Value / 100, 'Electricity');
+                                $this->SetValueFloat('Verbrauch', $Value / 1000, 'Electricity');
                                 break;
                             case 0x03: // Volt
                                 $this->SetValueFloat('Volt', $Value / 100, 'Volt.230');
