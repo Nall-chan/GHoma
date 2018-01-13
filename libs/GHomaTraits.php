@@ -541,4 +541,63 @@ trait VariableHelper
 
 }
 
+/**
+ * Trait mit Hilfsfunktionen für Variablenprofile.
+ */
+trait VariableProfile
+{
+
+    /**
+     * Erstell und konfiguriert ein VariablenProfil für den Typ float
+     *
+     * @access protected
+     * @param string $Name Name des Profils.
+     * @param string $Icon Name des Icon.
+     * @param string $Prefix Prefix für die Darstellung.
+     * @param string $Suffix Suffix für die Darstellung.
+     * @param int $MinValue Minimaler Wert.
+     * @param int $MaxValue Maximaler wert.
+     * @param int $StepSize Schrittweite
+     */
+    protected function RegisterProfileFloat($Name, $Icon, $Prefix, $Suffix, $MinValue, $MaxValue, $StepSize, $Digits)
+    {
+        $this->RegisterProfile(2, $Name, $Icon, $Prefix, $Suffix, $MinValue, $MaxValue, $StepSize, $Digits);
+    }
+
+    /**
+     * Erstell und konfiguriert ein VariablenProfil für den Typ float
+     *
+     * @access protected
+     * @param int $VarTyp Typ der Variable
+     * @param string $Name Name des Profils.
+     * @param string $Icon Name des Icon.
+     * @param string $Prefix Prefix für die Darstellung.
+     * @param string $Suffix Suffix für die Darstellung.
+     * @param int $MinValue Minimaler Wert.
+     * @param int $MaxValue Maximaler wert.
+     * @param int $StepSize Schrittweite
+     */
+    protected function RegisterProfile($VarTyp, $Name, $Icon, $Prefix, $Suffix, $MinValue, $MaxValue, $StepSize, $Digits = 0)
+    {
+
+        if (!IPS_VariableProfileExists($Name))
+        {
+            IPS_CreateVariableProfile($Name, $VarTyp);
+        }
+        else
+        {
+            $profile = IPS_GetVariableProfile($Name);
+            if ($profile['ProfileType'] != $VarTyp)
+                throw new Exception("Variable profile type does not match for profile " . $Name, E_USER_WARNING);
+        }
+
+        IPS_SetVariableProfileIcon($Name, $Icon);
+        IPS_SetVariableProfileText($Name, $Prefix, $Suffix);
+        IPS_SetVariableProfileValues($Name, $MinValue, $MaxValue, $StepSize);
+        if ($VarTyp == vtFloat)
+            IPS_SetVariableProfileDigits($Name, $Digits);
+    }
+
+}
+
 /** @} */

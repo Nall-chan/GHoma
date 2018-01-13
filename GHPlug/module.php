@@ -30,7 +30,8 @@ class GHomaPlug extends IPSModule
     use VariableHelper,
         DebugHelper,
         InstanceStatus,
-        BufferHelper
+        BufferHelper,
+        VariableProfile
     {
         InstanceStatus::MessageSink as IOMessageSink; // MessageSink gibt es sowohl hier in der Klasse, als auch im Trait InstanceStatus. Hier wird für die Methode im Trait ein Alias benannt.
     }
@@ -76,6 +77,10 @@ class GHomaPlug extends IPSModule
         // Wenn Kernel nicht bereit, dann warten... KR_READY kommt ja gleich
         if (IPS_GetKernelRunlevel() <> KR_READY)
             return;
+
+        $this->RegisterProfileFloat('VaR', '', '', ' var', 0, 0, 0, 2);
+        $this->RegisterProfileFloat('VA', '', '', ' VA', 0, 0, 0, 2);
+
 
         $this->RegisterParent();
 
@@ -222,6 +227,22 @@ class GHomaPlug extends IPSModule
         return $Result;
     }
 
+    public function SendRaw(string $Value)
+    {
+        if ($this->ConnectState != GHConnectState::CONNECTED)
+        {
+            trigger_error($this->Translate('Plug not connected'), E_USER_WARNING);
+            return false;
+        }
+        $Message = new GHMessage(
+                GHMessage::CMD_SWITCH, "\x01\x01\x0a\xe0" .
+                $this->TriggerCode .
+                $this->ShortMac .
+                "\xff\xfe" . $Value);
+
+        $this->Send($Message);
+    }
+
 ################## ActionHandler
 
     /**
@@ -329,9 +350,61 @@ class GHomaPlug extends IPSModule
                 $this->SetStatus(IS_ACTIVE);
                 $this->ConnectState = GHConnectState::CONNECTED;
                 break;
+
             case GHMessage::CMD_STATUS:
-                $this->SetValueBoolean('STATE', ($Message->Payload[19] === chr(0xff)));
-                $this->SetValueBoolean('BUTTON', ($Message->Payload[11] === chr(0x81)));
+                /*
+                  Bytes               0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20
+                  Messung            01 0A E0 35 23 D3 2B 8E FF FE 01 81 39 00 00 01 01 20 00 01 7F
+                  Messung            01 0A E0 35 23 D3 2B 8E FF FE 01 81 39 00 00 01 02 00 00 01 55
+                  Messung                                    FF FE 01 81 39 00 00 01 03 20 00 59 16
+                  Messung            01 0A E0 35 23 D3 2B 8E FF FE 01 81 39 00 00 01 07 20 00 04 80
+                  Messung            01 0A E0 35 23 D3 2B 8E FF FE 01 81 39 00 00 01 03 20 00 59 16
+                  ???                01 0A E0 35 23 D3 2B 8E FF FE 01 81 39 00 00 01 02 00 00 00 32
+                  SchaltenEin remote 01 0A E0 32 23 94 72 86 FF FE 01 11 11 00 00 01 00 00 00 FF
+                  SchaltenEin remote 01 0A E0 35 23 D3 2B 8E FF FE 01 11 11 00 00 01 00 00 00 FF
+                  SchaltenAus lokal  01 0A E0 32 23 94 72 86 FF FE 01 81 11 00 00 01 00 00 00 00
+                  Aus 01 0A E0 35 23 D3 2B 8E FF FE 01 81 11 00 00 01 00 00 00 00
+                  ein 01 0A E0 35 23 D3 2B 8E FF FE 01 81 11 00 00 01 00 00 00 FF
+                  01 01 0A E0 35 23 D3 2B 8E FF FE 00 00 10 11 00 00 01 00 00 00 00
+                  01 01 0A E0 35 23 D3 2B 8E FF FE 00 00 10 11 00 00 01 00 00 00 FF
+                  01 0A E0 35 23 D3 2B 8E FF FE 01 11 11 00 00 01 00 00 00 00
+                  01 0A E0 35 23 D3 2B 8E FF FE 01 11 11 00 00 01 00 00 00 FF
+                 */
+                switch (ord($Message->Payload[12]))
+                {
+                    case 0x11: // STATE
+                        $this->SetValueBoolean('STATE', ($Message->Payload[19] === chr(0xff)));
+                        $this->SetValueBoolean('BUTTON', ($Message->Payload[11] === chr(0x81)));
+                        break;
+                    case 0x39: // MESSUNG
+                        $Part = "\x00" . substr($Message->Payload, 18, 3);
+                        $Value = unpack("N", $Part)[1];
+                        switch (ord($Message->Payload[16]))
+                        {
+                            case 0x01: // Watt
+                                $this->SetValueFloat('Watt', $Value / 100, 'Watt.14490');
+                                break;
+                            case 0x02: // ??
+
+                                break;
+                            case 0x03: // Volt
+                                $this->SetValueFloat('Volt', $Value / 100, 'Volt.230');
+                                break;
+                            case 0x04: // Ampere
+                                $this->SetValueFloat('Ampere', $Value / 100, 'Ampere');
+                                break;
+                            case 0x05: // Hertz
+                                $this->SetValueFloat('Hertz', $Value / 100, 'Hertz.50');
+                                break;
+                            case 0x07: // Scheinleistung
+                                $this->SetValueFloat('Scheinleistung', $Value / 100, 'VA');
+                                break;
+                            case 0x08: // Leistungsfaktor
+                                $this->SetValueFloat('Leistungsfaktor', $Value / 100, '');
+                                break;
+                        }
+                        break;
+                }
                 break;
         }
     }
@@ -346,7 +419,6 @@ class GHomaPlug extends IPSModule
     public function ReceiveData($JSONString)
     {
         $data = json_decode($JSONString);
-
         // Datenstream zusammenfügen
         $head = $this->BufferIN;
         $Data = $head . utf8_decode($data->Buffer);
