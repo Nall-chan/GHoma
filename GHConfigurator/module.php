@@ -156,8 +156,6 @@ class GHomaConfigurator extends ipsmodule
             $Devices = $this->DevicesIP;
         }
         $Total = count($Devices);
-        if ($Total == 0)
-            return;
         $Liste = array();
         $DisconnectedPlugs = 0;
         $NewPlugs = 0;
