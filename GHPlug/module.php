@@ -363,12 +363,16 @@ class GHomaPlug extends IPSModule
                   SchaltenEin remote 01 0A E0 32 23 94 72 86 FF FE 01 11 11 00 00 01 00 00 00 FF
                   SchaltenEin remote 01 0A E0 35 23 D3 2B 8E FF FE 01 11 11 00 00 01 00 00 00 FF
                   SchaltenAus lokal  01 0A E0 32 23 94 72 86 FF FE 01 81 11 00 00 01 00 00 00 00
+                 *                   01 0A E0 35 23 D3 3D 02 FF FE 01 81 31 00 00 02 00 00 00 01 
                  */
                 switch (ord($Message->Payload[12]))
                 {
                     case 0x11: // STATE
                         $this->SetValueBoolean('STATE', ($Message->Payload[19] === chr(0xff)));
                         $this->SetValueBoolean('BUTTON', ($Message->Payload[11] === chr(0x81)));
+                        break;
+                    case 0x31:
+                        $this->SetValueBoolean('ALARM', ($Message->Payload[15] === chr(0x02)), "~Alert");
                         break;
                     case 0x39: // MESSUNG
                         $Part = "\x00" . substr($Message->Payload, 18, 3);
@@ -400,6 +404,9 @@ class GHomaPlug extends IPSModule
                         break;
                 }
                 break;
+            // FE Command ?
+            // FE 
+            // 01 0A C0 35 23 D3 3D 02 00 00 00 0F 
         }
     }
 

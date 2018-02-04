@@ -394,12 +394,12 @@ class GHomaConfigurator extends ipsmodule
         $Line = stream_get_line($fp, 3000, "\r\n\r\n");
         if ($Line === '+ok')
         {
-            $this->SendDebug('Result', $Line, 0);
+            $this->SendDebug('Result OK', $Line, 0);
             return true;
         }
-        if (substr($Line, 0, 4) == '+ERR')
+        if (strpos($Line, '+ok') === false)
         {
-            $this->SendDebug('Result', $Line, 0);
+            $this->SendDebug('Result ERR', $Line, 0);
             return false;
         }
         $Data = substr($Line, strpos($Line, '+ok') + 4);

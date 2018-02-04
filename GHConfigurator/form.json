@@ -28,7 +28,7 @@
                     "add": false,
                     "delete": false,
                     "sort": {
-                        "column": "Index",
+                        "column": "InstanceID",
                         "direction": "ascending"
                     },
                     "columns": [{
