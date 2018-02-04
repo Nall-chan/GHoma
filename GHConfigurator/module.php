@@ -1,4 +1,4 @@
-<?
+<?php
 
 /**
  * @addtogroup ghoma
@@ -15,13 +15,12 @@ require_once(__DIR__ . "/../libs/GHomaTraits.php");  // diverse Klassen
 
 /**
  * GHomaConfigurator ist die Klasse für einen Konfigurator in IPS für die WLAN Steckdosen der Firma G-Homa.
- * Erweitert ipsmodule 
+ * Erweitert ipsmodule
  *
  * @property array $DevicesIP
  */
 class GHomaConfigurator extends ipsmodule
 {
-
     use BufferHelper,
         DebugHelper,
         InstanceStatus
@@ -42,8 +41,9 @@ class GHomaConfigurator extends ipsmodule
      */
     public function __destruct()
     {
-        if ($this->UDPSocket != false)
+        if ($this->UDPSocket != false) {
             fclose($this->UDPSocket);
+        }
     }
 
     /**
@@ -72,14 +72,16 @@ class GHomaConfigurator extends ipsmodule
         parent::ApplyChanges();
         $this->DevicesIP = array();
 
-        if (IPS_GetKernelRunlevel() <> KR_READY)
+        if (IPS_GetKernelRunlevel() <> KR_READY) {
             return;
+        }
         $this->RegisterParent();
 
-        if ($this->HasActiveParent())
+        if ($this->HasActiveParent()) {
             $this->IOChangeState(IS_ACTIVE);
-        else
+        } else {
             $this->IOChangeState(IS_INACTIVE);
+        }
     }
 
     /**
@@ -94,14 +96,14 @@ class GHomaConfigurator extends ipsmodule
     public function MessageSink($TimeStamp, $SenderID, $Message, $Data)
     {
         $this->IOMessageSink($TimeStamp, $SenderID, $Message, $Data);
-        switch ($Message)
-        {
+        switch ($Message) {
             case IPS_KERNELSTARTED:
                 $this->RegisterParent();
-                if ($this->HasActiveParent())
+                if ($this->HasActiveParent()) {
                     $this->IOChangeState(IS_ACTIVE);
-                else
+                } else {
                     $this->IOChangeState(IS_INACTIVE);
+                }
                 break;
         }
     }
@@ -114,18 +116,17 @@ class GHomaConfigurator extends ipsmodule
      */
     protected function IOChangeState($State)
     {
-        if ($State == IS_ACTIVE)
-        {
+        if ($State == IS_ACTIVE) {
             $this->SendSearchBroadcast();
             $this->SetStatus(IS_ACTIVE);
-        }
-        else
+        } else {
             $this->SetStatus(IS_INACTIVE);
+        }
     }
 
     /**
      * Interne Funktion des SDK.
-     * 
+     *
      * @access public
      */
     public function GetConfigurationForParent()
@@ -149,8 +150,7 @@ class GHomaConfigurator extends ipsmodule
     public function GetConfigurationForm()
     {
         $Devices = $this->DevicesIP;
-        if (count($Devices) == 0)
-        {
+        if (count($Devices) == 0) {
             @$this->SendSearchBroadcast();
             IPS_Sleep(2000);
             $Devices = $this->DevicesIP;
@@ -161,12 +161,12 @@ class GHomaConfigurator extends ipsmodule
         $NewPlugs = 0;
         $this->SendDebug('Found', $Devices, 0);
         $InstanceIDListe = IPS_GetInstanceListByModuleID("{5F0CF4B0-7395-4ABF-B10F-AA0109A0F016}");
-        foreach ($InstanceIDListe as $InstanceID)
-        {
+        foreach ($InstanceIDListe as $InstanceID) {
             // Fremde Geräte überspringen
             $ParentID = IPS_GetInstance($InstanceID)['ConnectionID'];
-            if ($ParentID == 0)
+            if ($ParentID == 0) {
                 continue;
+            }
             $PlugIP = IPS_GetProperty($ParentID, 'Host');
             $Plug = array(
                 'InstanceID' => $InstanceID,
@@ -176,13 +176,10 @@ class GHomaConfigurator extends ipsmodule
                 'Name' => IPS_GetName($InstanceID)
             );
             $FoundIndex = array_key_exists($PlugIP, $Devices);
-            if ($FoundIndex === false)
-            {
+            if ($FoundIndex === false) {
                 $Plug["rowColor"] = "#ff0000";
                 $DisconnectedPlugs++;
-            }
-            else
-            {
+            } else {
                 $Plug['PlugMAC'] = $Devices[$PlugIP][0];
                 $Plug['PlugType'] = $Devices[$PlugIP][1];
                 $Plug['rowColor'] = "#00ff00";
@@ -191,8 +188,7 @@ class GHomaConfigurator extends ipsmodule
 
             $Liste[] = $Plug;
         }
-        foreach ($Devices as $PlugIP => $PlugData)
-        {
+        foreach ($Devices as $PlugIP => $PlugData) {
             $Plug = array(
                 'InstanceID' => 0,
                 'PlugIP' => $PlugIP,
@@ -205,12 +201,15 @@ class GHomaConfigurator extends ipsmodule
         }
 
         $data = json_decode(file_get_contents(__DIR__ . "/form.json"), true);
-        if ($Total > 0)
+        if ($Total > 0) {
             $data['actions'][2]['label'] = sprintf($this->Translate("Plugs found: %d"), $Total);
-        if ($NewPlugs > 0)
+        }
+        if ($NewPlugs > 0) {
             $data['actions'][3]['label'] = sprintf($this->Translate("New plugs: %d"), $NewPlugs);
-        if ($DisconnectedPlugs > 0)
+        }
+        if ($DisconnectedPlugs > 0) {
             $data['actions'][4]['label'] = sprintf($this->Translate("Disconnected plugs: %d"), $DisconnectedPlugs);
+        }
         $data['actions'][6]['values'] = array_merge($data['actions'][6]['values'], $Liste);
 
         $data['actions'][0]['onClick'] = '
@@ -331,8 +330,7 @@ class GHomaConfigurator extends ipsmodule
         $this->SendDebug('Login:' . $Host, '', 0);
 
         $this->UDPSocket = fsockopen("udp://" . $Host, 48899, $errno, $errstr, 2);
-        if (!$this->UDPSocket)
-        {
+        if (!$this->UDPSocket) {
             trigger_error("ERROR: $errno - $errstr", E_USER_NOTICE);
             $this->SendDebug('Error:' . $Host, $errno . ' - ' . $errstr, 0);
             return false;
@@ -351,8 +349,7 @@ class GHomaConfigurator extends ipsmodule
     public function GetDeviceData(string $Host)
     {
         $DeviceData = @$this->DeviceLogin($Host);
-        if ($DeviceData == false)
-        {
+        if ($DeviceData == false) {
             echo $this->Translate('Error on Read Data');
             return;
         }
@@ -371,8 +368,9 @@ class GHomaConfigurator extends ipsmodule
 
         $ResultQuality = $this->ReadDeviceData($Host, "WSLQ");
         $DeviceData['WLAN'] = $ResultQuality[0];
-        if (count($ResultQuality) > 1)
+        if (count($ResultQuality) > 1) {
             $DeviceData['Signal'] = $ResultQuality[1];
+        }
 
         $ResultNetwork = $this->ReadDeviceData($Host, "WANN");
         $DeviceData['DHCP'] = ($ResultNetwork[0] != 'STATIC');
@@ -392,13 +390,11 @@ class GHomaConfigurator extends ipsmodule
     private function ReadAnswer($fp)
     {
         $Line = stream_get_line($fp, 3000, "\r\n\r\n");
-        if ($Line === '+ok')
-        {
+        if ($Line === '+ok') {
             $this->SendDebug('Result OK', $Line, 0);
             return true;
         }
-        if (strpos($Line, '+ok') === false)
-        {
+        if (strpos($Line, '+ok') === false) {
             $this->SendDebug('Result ERR', $Line, 0);
             return false;
         }
@@ -409,10 +405,10 @@ class GHomaConfigurator extends ipsmodule
 
     public function ReadDeviceData(string $Host, string $Key)
     {
-        if ($this->UDPSocket == false)
-        {
-            if ($this->DeviceLogin($Host) == false)
+        if ($this->UDPSocket == false) {
+            if ($this->DeviceLogin($Host) == false) {
                 return false;
+            }
         }
         $this->SendDebug('Write:' . $Host . ":" . $Key, '', 0);
         fwrite($this->UDPSocket, "AT+" . $Key . "\r\n");
@@ -421,10 +417,10 @@ class GHomaConfigurator extends ipsmodule
 
     public function WriteDeviceData(string $Host, string $Key, string $Value)
     {
-        if ($this->UDPSocket == false)
-        {
-            if ($this->DeviceLogin($Host) == false)
+        if ($this->UDPSocket == false) {
+            if ($this->DeviceLogin($Host) == false) {
                 return false;
+            }
         }
         $this->SendDebug('Write:' . $Host . ":" . $Key, $Value, 0);
         fwrite($this->UDPSocket, "AT+" . $Key . "=" . $Value . "\r\n");
@@ -433,10 +429,10 @@ class GHomaConfigurator extends ipsmodule
 
     public function SendDeviceReset(string $Host)
     {
-        if ($this->UDPSocket == false)
-        {
-            if ($this->DeviceLogin($Host) == false)
+        if ($this->UDPSocket == false) {
+            if ($this->DeviceLogin($Host) == false) {
                 return false;
+            }
         }
         $this->SendDebug('Write:' . $Host . ":Z", '', 0);
         fwrite($this->UDPSocket, "AT+Z\r\n");
@@ -448,7 +444,7 @@ class GHomaConfigurator extends ipsmodule
         $this->DevicesIP = array();
         $Payload = "HF-A11ASSISTHREAD";
         $this->SendDebug("SendSearchBroadcast", $Payload, 0);
-        $SendData = Array("DataID" => "{79827379-F36E-4ADA-8A95-5F8D1DC92FA9}", "Buffer" => utf8_encode($Payload)); //, "ClientIP" => "255.255.255.255", "ClientPort" => 48899);
+        $SendData = array("DataID" => "{79827379-F36E-4ADA-8A95-5F8D1DC92FA9}", "Buffer" => utf8_encode($Payload)); //, "ClientIP" => "255.255.255.255", "ClientPort" => 48899);
         $this->SendDataToParent(json_encode($SendData));
     }
 
@@ -461,14 +457,14 @@ class GHomaConfigurator extends ipsmodule
         // 1 = MAC
         // 2 = Typ
         $Response = explode(',', $Data);
-        if (count($Response) != 3)
+        if (count($Response) != 3) {
             return;
+        }
         $DevicesIP = $this->DevicesIP;
         $DevicesIP[array_shift($Response)] = $Response;
         $this->DevicesIP = $DevicesIP;
         $this->SendDebug('AllDevices', $DevicesIP, 0);
     }
-
 }
 
 /** @} */

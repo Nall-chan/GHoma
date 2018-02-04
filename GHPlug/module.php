@@ -1,4 +1,4 @@
-<?
+<?php
 
 /**
  * @addtogroup ghoma
@@ -15,7 +15,7 @@ require_once(__DIR__ . "/../libs/GHomaTraits.php");  // diverse Klassen
 
 /**
  * GHomaPlug ist die Klasse für die WLAN Steckdosen der Firma G-Homa
- * Erweitert ipsmodule 
+ * Erweitert ipsmodule
  *
  * @property string $BufferIN Receive RAW Buffer.
  * @property GHMessage $LastMessage Letzte Antwort.
@@ -26,7 +26,6 @@ require_once(__DIR__ . "/../libs/GHomaTraits.php");  // diverse Klassen
  */
 class GHomaPlug extends IPSModule
 {
-
     use VariableHelper,
         DebugHelper,
         InstanceStatus,
@@ -75,8 +74,9 @@ class GHomaPlug extends IPSModule
         parent::ApplyChanges();
 
         // Wenn Kernel nicht bereit, dann warten... KR_READY kommt ja gleich
-        if (IPS_GetKernelRunlevel() <> KR_READY)
+        if (IPS_GetKernelRunlevel() <> KR_READY) {
             return;
+        }
 
         $this->RegisterProfileFloat('VaR', '', '', ' var', 0, 0, 0, 2);
         $this->RegisterProfileFloat('VA', '', '', ' VA', 0, 0, 0, 2);
@@ -85,10 +85,11 @@ class GHomaPlug extends IPSModule
         $this->RegisterParent();
 
         // Wenn Parent aktiv, dann Anmeldung an der Hardware bzw. Datenabgleich starten
-        if ($this->HasActiveParent())
+        if ($this->HasActiveParent()) {
             $this->IOChangeState(IS_ACTIVE);
-        else
+        } else {
             $this->IOChangeState(IS_INACTIVE);
+        }
     }
 
     /**
@@ -103,14 +104,14 @@ class GHomaPlug extends IPSModule
     public function MessageSink($TimeStamp, $SenderID, $Message, $Data)
     {
         $this->IOMessageSink($TimeStamp, $SenderID, $Message, $Data);
-        switch ($Message)
-        {
+        switch ($Message) {
             case IPS_KERNELSTARTED:
                 $this->RegisterParent();
-                if ($this->HasActiveParent())
+                if ($this->HasActiveParent()) {
                     $this->IOChangeState(IS_ACTIVE);
-                else
+                } else {
                     $this->IOChangeState(IS_INACTIVE);
+                }
                 break;
         }
     }
@@ -124,22 +125,21 @@ class GHomaPlug extends IPSModule
     protected function IOChangeState($State)
     {
         // Anzeige Port in der INFO Spalte
-        if ($this->ParentID > 0)
+        if ($this->ParentID > 0) {
             $this->SetSummary(IPS_GetProperty($this->ParentID, 'Host'));
-        else
+        } else {
             $this->SetSummary('(none)');
+        }
 
         // Wenn der IO Aktiv wurde
-        if ($State == IS_ACTIVE)
-        {
-            if (!$this->SendInit())
+        if ($State == IS_ACTIVE) {
+            if (!$this->SendInit()) {
                 $this->SetStatus(IS_EBASE + 3);
+            }
 
             $this->SetTimerInterval('Timeout', 0);
             $this->SetTimerInterval('Timeout', 44 * 1000);
-        }
-        else // und wenn nicht
-        {
+        } else { // und wenn nicht
             $this->ConnectState = GHConnectState::UNKNOW;
             $this->SetStatus(IS_INACTIVE);
             $this->SetTimerInterval('Timeout', 0);
@@ -148,7 +148,7 @@ class GHomaPlug extends IPSModule
 
     /**
      * Interne Funktion des SDK.
-     * 
+     *
      * @access public
      */
     public function GetConfigurationForParent()
@@ -164,8 +164,9 @@ class GHomaPlug extends IPSModule
     public function Timeout()
     {
 //        $this->SetTimerInterval('Timeout', 0);
-        if (!$this->SendInit())
+        if (!$this->SendInit()) {
             $this->SetStatus(IS_EBASE + 3);
+        }
 
         //$this->IOChangeState(IS_INACTIVE);
     }
@@ -180,8 +181,7 @@ class GHomaPlug extends IPSModule
      */
     private function SendSwitchAction(bool $State)
     {
-        if ($this->ConnectState != GHConnectState::CONNECTED)
-        {
+        if ($this->ConnectState != GHConnectState::CONNECTED) {
             echo $this->Translate('Plug not connected');
             return;
         }
@@ -193,11 +193,12 @@ class GHomaPlug extends IPSModule
 
         $this->Send($Message);
 
-        if (!$this->WaitForSwitch($State))
+        if (!$this->WaitForSwitch($State)) {
             echo $this->Translate('Plug not response');
+        }
     }
 
-################## PUBLIC
+    ################## PUBLIC
 
     /**
      * IPS-Instanz Funktion GHOMA_SendSwitch.
@@ -209,8 +210,7 @@ class GHomaPlug extends IPSModule
      */
     public function SendSwitch(bool $State)
     {
-        if ($this->ConnectState != GHConnectState::CONNECTED)
-        {
+        if ($this->ConnectState != GHConnectState::CONNECTED) {
             trigger_error($this->Translate('Plug not connected'), E_USER_WARNING);
             return false;
         }
@@ -222,15 +222,15 @@ class GHomaPlug extends IPSModule
 
         $this->Send($Message);
         $Result = $this->WaitForSwitch($State);
-        if (!$Result)
+        if (!$Result) {
             trigger_error($this->Translate('Plug not response'), E_USER_WARNING);
+        }
         return $Result;
     }
 
     public function SendRaw(string $Value)
     {
-        if ($this->ConnectState != GHConnectState::CONNECTED)
-        {
+        if ($this->ConnectState != GHConnectState::CONNECTED) {
             trigger_error($this->Translate('Plug not connected'), E_USER_WARNING);
             return false;
         }
@@ -243,7 +243,7 @@ class GHomaPlug extends IPSModule
         $this->Send($Message);
     }
 
-################## ActionHandler
+    ################## ActionHandler
 
     /**
      * Interne Funktion des SDK.
@@ -252,8 +252,7 @@ class GHomaPlug extends IPSModule
      */
     public function RequestAction($Ident, $Value)
     {
-        switch ($Ident)
-        {
+        switch ($Ident) {
             case 'STATE':
                 $this->SendSwitchAction((bool) $Value);
                 break;
@@ -263,11 +262,11 @@ class GHomaPlug extends IPSModule
         }
     }
 
-################## PRIVATE
+    ################## PRIVATE
 
     /**
      * Sendet die Initialisierung an den Controller und prüft die Rückmeldung.
-     * 
+     *
      * @access private
      * @return boolean True bei Erfolg, sonst false.
      * @throws Exception Wenn kein aktiver Parent verbunden ist.
@@ -283,7 +282,7 @@ class GHomaPlug extends IPSModule
 
     /**
      * Warte auf eine Änderung der Statusvariable 'STATE'.
-     *  
+     *
      * @access private
      * @param bool $State Der Status auf welchen gewartet wird.
      * @return boolean True wenn das Event eintrifft, false wenn Timeout erreicht wurde.
@@ -291,42 +290,42 @@ class GHomaPlug extends IPSModule
     private function WaitForSwitch($State)
     {
         $vid = @$this->GetIDForIdent('STATE');
-        if ($vid == false)
+        if ($vid == false) {
             return false;
+        }
 
-        for ($i = 0; $i < 1000; $i++)
-        {
-            if (GetValueBoolean($vid) === $State)
+        for ($i = 0; $i < 1000; $i++) {
+            if (GetValueBoolean($vid) === $State) {
                 return true;
-            else
+            } else {
                 IPS_Sleep(5);
+            }
         }
         return false;
     }
 
     /**
      * Warte auf das SetReply Event.
-     *  
+     *
      * @access private
      * @param int $Timeout Max. Zeit in ms in der dass Event eintreffen muss.
      * @return boolean True wenn das Event eintrifft, false wenn Timeout erreicht wurde.
      */
     private function WaitForConnect()
     {
-        for ($i = 0; $i < 1000; $i++)
-        {
-            if ($this->ConnectState == GHConnectState::CONNECTED)
+        for ($i = 0; $i < 1000; $i++) {
+            if ($this->ConnectState == GHConnectState::CONNECTED) {
                 return true;
-            else
+            } else {
                 IPS_Sleep(5);
+            }
         }
         return false;
     }
 
     private function Decode(GHMessage $Message)
     {
-        switch ($Message->Command)
-        {
+        switch ($Message->Command) {
             case GHMessage::CMD_HEARTBEAT:
                 $this->SetTimerInterval('Timeout', 0);
                 $Message = new GHMessage(GHMessage::CMD_HEARTBEATREPLY, "");
@@ -343,8 +342,7 @@ class GHomaPlug extends IPSModule
                 break;
 
             case GHMessage::CMD_INIT2REPLY:
-                if ($Message->Payload[9] == chr(1))
-                {
+                if ($Message->Payload[9] == chr(1)) {
                     $this->FullMac = substr($Message->Payload, 11, 6);
                 }
                 $this->SetStatus(IS_ACTIVE);
@@ -363,10 +361,9 @@ class GHomaPlug extends IPSModule
                   SchaltenEin remote 01 0A E0 32 23 94 72 86 FF FE 01 11 11 00 00 01 00 00 00 FF
                   SchaltenEin remote 01 0A E0 35 23 D3 2B 8E FF FE 01 11 11 00 00 01 00 00 00 FF
                   SchaltenAus lokal  01 0A E0 32 23 94 72 86 FF FE 01 81 11 00 00 01 00 00 00 00
-                 *                   01 0A E0 35 23 D3 3D 02 FF FE 01 81 31 00 00 02 00 00 00 01 
+                 *                   01 0A E0 35 23 D3 3D 02 FF FE 01 81 31 00 00 02 00 00 00 01
                  */
-                switch (ord($Message->Payload[12]))
-                {
+                switch (ord($Message->Payload[12])) {
                     case 0x11: // STATE
                         $this->SetValueBoolean('STATE', ($Message->Payload[19] === chr(0xff)));
                         $this->SetValueBoolean('BUTTON', ($Message->Payload[11] === chr(0x81)));
@@ -377,8 +374,7 @@ class GHomaPlug extends IPSModule
                     case 0x39: // MESSUNG
                         $Part = "\x00" . substr($Message->Payload, 18, 3);
                         $Value = unpack("N", $Part)[1];
-                        switch (ord($Message->Payload[16]))
-                        {
+                        switch (ord($Message->Payload[16])) {
                             case 0x01: // Watt
                                 $this->SetValueFloat('Watt', $Value / 100, 'Watt.14490');
                                 break;
@@ -405,12 +401,12 @@ class GHomaPlug extends IPSModule
                 }
                 break;
             // FE Command ?
-            // FE 
-            // 01 0A C0 35 23 D3 3D 02 00 00 00 0F 
+            // FE
+            // 01 0A C0 35 23 D3 3D 02 00 00 00 0F
         }
     }
 
-################## DATAPOINTS
+    ################## DATAPOINTS
 
     /**
      * Interne Funktion des SDK.
@@ -427,11 +423,9 @@ class GHomaPlug extends IPSModule
         $Lines = explode(GHMessage::POSTFIX, $Data);
         $tail = array_pop($Lines);
         $this->BufferIN = $tail;
-        foreach ($Lines as $Line)
-        {
+        foreach ($Lines as $Line) {
             $Start = strpos($Line, GHMessage::PREFIX);
-            if ($Start === false)
-            {
+            if ($Start === false) {
                 $this->SendDebug('Receive invalid line', $Line, 1);
                 $this->SendDebug('PREFIX error', strpos($Line, GHMessage::PREFIX), 0);
                 continue;
@@ -444,20 +438,17 @@ class GHomaPlug extends IPSModule
             $this->SendDebug('Frame Len', $Len, 0);
             $this->SendDebug('Frame Checksum', $Checksum, 0);
             $this->SendDebug('Frame Payload', $Payload, 1);
-            if ($Len != strlen($Payload))
-            {
+            if ($Len != strlen($Payload)) {
                 $this->SendDebug('Got invalid frame', '', 0);
                 continue;
             }
             $sum = 0;
-            for ($i = 0; $i < $Len; $i++)
-            {
+            for ($i = 0; $i < $Len; $i++) {
                 $sum += ord($Payload[$i]);
             }
             $checksumcalc = 0xFF - ($sum & 255);
 
-            if ($Checksum != $checksumcalc)
-            {
+            if ($Checksum != $checksumcalc) {
                 $this->SendDebug('Wrong CRC', $Line, 0);
                 continue;
             }
@@ -476,12 +467,12 @@ class GHomaPlug extends IPSModule
      */
     protected function Send(GHMessage $Message)
     {
-        if (!$this->HasActiveParent())
+        if (!$this->HasActiveParent()) {
             throw new Exception($this->Translate("Instance has no active Parent."), E_USER_NOTICE);
+        }
         $this->SendDebug('Send', $Message, 0);
-        $this->SendDataToParent(json_encode(Array("DataID" => "{79827379-F36E-4ADA-8A95-5F8D1DC92FA9}", "Buffer" => utf8_encode($Message->toFrame()))));
+        $this->SendDataToParent(json_encode(array("DataID" => "{79827379-F36E-4ADA-8A95-5F8D1DC92FA9}", "Buffer" => utf8_encode($Message->toFrame()))));
     }
-
 }
 
 /** @} */
