@@ -64,12 +64,23 @@ In dem sich öffnenden Konfigurationsformular muss die IP-Adresse des Gerätes e
 
 Folgende Statusvariablen werden automatisch angelegt.  
 
-| Name   | Typ     | Ident  | Beschreibung                                                                    |
-| :----: | :-----: | :----: | :-----------------------------------------------------------------------------: |
-| STATE  | bool    | STATE  | True wenn das Gerät eingeschaltet ist                                           |
-| BUTTON | bool    | BUTTON | Wird auf True aktualisiert, wenn das Gerät über die Gerätetaste betätigt wurde. |
+| Name            | Typ   | Ident       | Beschreibung                                                                    |
+| :-------------: | :---: | :---------: | :-----------------------------------------------------------------------------: |
+| STATE           | bool  | STATE       | True wenn das Gerät eingeschaltet ist                                           |
+| BUTTON          | bool  | BUTTON      | Wird auf True aktualisiert, wenn das Gerät über die Gerätetaste betätigt wurde. |
+| Leistung        | float | Power       | Leistung in Watt                                                                |
+| Verbrauch       | float | Consumption | Verbrauch in kWh                                                                |
+| Spannung        | float | Voltage     | Spannung in Volt                                                                |
+| Strom           | float | Current     | Strom in Ampere                                                                 |
+| Frequenz        | float | Frequenz    | Frequenz                                                                        |
+| Scheinleistung  | float | Output      | Scheinleistung in VA                                                            |
+| Leistungsfaktor | float | PowerFactor | Leistungsfaktor                                                                 |
 
-Es werden keine neuen Profile angelegt.
+**Profile**:
+
+| Name            | Typ     | verwendet von Statusvariablen |
+| :-------------: | :-----: | :---------------------------: |
+| GHoma.VA        | float   | Scheinleistung                |
 
 ## 6. WebFront
 

@@ -108,8 +108,8 @@ class GHomaPlug extends IPSModule
             return;
         }
 
-        $this->RegisterProfileFloat('VaR', '', '', ' var', 0, 0, 0, 2);
-        $this->RegisterProfileFloat('VA', '', '', ' VA', 0, 0, 0, 2);
+//        $this->RegisterProfileFloat('GHoma.VaR', '', '', ' var', 0, 0, 0, 2);
+        $this->RegisterProfileFloat('GHoma.VA', '', '', ' VA', 0, 0, 0, 2);
 
         $this->RegisterParent();
 
@@ -372,25 +372,25 @@ class GHomaPlug extends IPSModule
                         $Value = unpack('N', $Part)[1];
                         switch (ord($Message->Payload[16])) {
                             case 0x01: // Watt
-                                $this->SetValueFloat('Watt', $Value / 100, 'Watt.14490');
+                                $this->SetValueFloat('Power', $Value / 100, 'Watt.14490');
                                 break;
                             case 0x02: // Verbrauch
-                                $this->SetValueFloat('Verbrauch', $Value / 1000, 'Electricity');
+                                $this->SetValueFloat('Consumption', $Value / 1000, 'Electricity');
                                 break;
                             case 0x03: // Volt
-                                $this->SetValueFloat('Volt', $Value / 100, 'Volt.230');
+                                $this->SetValueFloat('Voltage', $Value / 100, 'Volt.230');
                                 break;
                             case 0x04: // Ampere
-                                $this->SetValueFloat('Ampere', $Value / 100, 'Ampere');
+                                $this->SetValueFloat('Current', $Value / 100, 'Ampere');
                                 break;
                             case 0x05: // Hertz
-                                $this->SetValueFloat('Hertz', $Value / 100, 'Hertz.50');
+                                $this->SetValueFloat('Frequenz', $Value / 100, 'Hertz.50');
                                 break;
                             case 0x07: // Scheinleistung
-                                $this->SetValueFloat('Scheinleistung', $Value / 100, 'VA');
+                                $this->SetValueFloat('Output', $Value / 100, 'GHoma.VA');
                                 break;
                             case 0x08: // Leistungsfaktor
-                                $this->SetValueFloat('Leistungsfaktor', $Value / 100, '');
+                                $this->SetValueFloat('PowerFactor', $Value / 100, '');
                                 break;
                         }
                         break;
