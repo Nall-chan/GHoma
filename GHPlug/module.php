@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 /**
  * @addtogroup ghoma
  * @{
@@ -29,7 +29,6 @@ require_once __DIR__ . '/../libs/GHomaTraits.php';  // diverse Klassen
  */
 class GHomaPlug extends IPSModule
 {
-
     use VariableHelper,
         DebugHelper,
         InstanceStatus,
@@ -37,6 +36,7 @@ class GHomaPlug extends IPSModule
         VariableProfile {
         InstanceStatus::MessageSink as IOMessageSink; // MessageSink gibt es sowohl hier in der Klasse, als auch im Trait InstanceStatus. Hier wird für die Methode im Trait ein Alias benannt.
     }
+
     /**
      * Interne Funktion des SDK.
      */
@@ -216,6 +216,7 @@ class GHomaPlug extends IPSModule
     }
 
     //################# PUBLIC
+
     /**
      * IPS-Instanz Funktion GHOMA_SendSwitch.
      * Schaltet den Controller ein oder aus.
@@ -260,6 +261,7 @@ class GHomaPlug extends IPSModule
     }
 
     //################# ActionHandler
+
     /**
      * Interne Funktion des SDK.
      */
@@ -276,6 +278,7 @@ class GHomaPlug extends IPSModule
     }
 
     //################# PRIVATE
+
     /**
      * Sendet die Initialisierung an den Controller und prüft die Rückmeldung.
      *
@@ -404,6 +407,7 @@ class GHomaPlug extends IPSModule
     }
 
     //################# DATAPOINTS
+
     /**
      * Interne Funktion des SDK.
      */
@@ -485,7 +489,6 @@ class GHomaPlug extends IPSModule
                             'Buffer'     => utf8_encode($Message->toFrame())])
         );
     }
-
 }
 
 /* @} */
