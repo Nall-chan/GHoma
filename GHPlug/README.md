@@ -1,7 +1,7 @@
 [![Version](https://img.shields.io/badge/Symcon-PHPModul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
 [![Version](https://img.shields.io/badge/Modul%20Version-2.00-blue.svg)]()
 [![Version](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)  
-[Version](https://img.shields.io/badge/Symcon%20Version-5.0%20%3E-green.svg)
+![Version](https://img.shields.io/badge/Symcon%20Version-5.0%20%3E-green.svg)
 
 # G-Homa Plug  
 Einbindung einer WLAN-Steckdose von der Firma 'G-Homa'.  
@@ -34,11 +34,14 @@ Einbindung einer WLAN-Steckdose von der Firma 'G-Homa'.
 
  Dieses Modul ist Bestandteil der GHoma-Library.
 
-**IPS 4.3:**  
+**IPS 5.0:**  
    Bei privater Nutzung: Über das 'Module-Control' in IPS folgende URL hinzufügen.  
     `git://github.com/Nall-chan/GHoma.git`  
 
    **Bei kommerzieller Nutzung (z.B. als Errichter oder Integrator) wenden Sie sich bitte an den Autor.**  
+
+**Hinweis:**
+  Eine eventuell vorhandene Firewall auf dem Host-System des IPS-Servers, muss so konfiguriert werden dass der Port 4196 TCP ankommend freigegeben ist.  
 
 ## 4. Einrichten der Instanzen in IP-Symcon
 
@@ -47,10 +50,15 @@ Das Anlegen von neuen Instanzen kann komfortabel über den [G-Homa Konfigurator:
 Alternativ ist das Modul im Dialog 'Instanz hinzufügen' unter dem Hersteller 'G-Homa' zufinden.  
 ![Instanz hinzufügen](../imgs/add1.png)  
 
-Es wird automatisch eine 'Client-Socket' Instanz erzeugt.  
-Werden in dem sich öffnenden Konfigurationsformular werden keine Einstellungen vorgenommen.  
-Über den Button 'Gateway konfigurieren' oder das Zahnrad hinter der Übergeordneten Instanz wird das Konfigurationsformular des 'Client-Socket' geöffnet.  
-Hier muss jetzt die IP-Adresse des Gerätes eingetragen und übernommen werden.  
+Es wird automatisch eine 'Server-Socket' Instanz erzeugt, wenn nicht schon eine passende vorhanden ist.  
+In dem sich öffnenden Konfigurationsformular muss die IP-Adresse des Gerätes eingetragen und übernommen werden.  
+
+**Konfigurationsseite:**  
+
+| Eigenschaft   | Typ     | Standardwert | Funktion                   |
+| :-----------: | :-----: | :----------: | :------------------------: |
+| Host          | string  |              | Die IP-Adresse des Gerätes |
+
 
 ## 5. Statusvariablen und Profile
 
