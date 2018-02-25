@@ -211,16 +211,9 @@ class GHomaConfigurator extends ipsmodule
     }
     $InstanceID = IPS_CreateInstance("{5F0CF4B0-7395-4ABF-B10F-AA0109A0F016}");
     if ($InstanceID == false) return;
-    $ParentID = IPS_GetInstance($InstanceID)["ConnectionID"];
-    if ($ParentID == 0)
-    {
-        echo "' . $this->Translate('Error on create instance.') . '";
-        return;
-    }
-    @IPS_SetProperty($ParentID, "Host", $Plugs["PlugIP"]);
-    @IPS_SetProperty($ParentID, "Open", true);
-    @IPS_ApplyChanges($ParentID);
     IPS_SetName($InstanceID,"G-Home Plug - ".$Plugs["PlugIP"]);
+    @IPS_SetProperty($InstanceID, "Host", $Plugs["PlugIP"]);
+    @IPS_ApplyChanges($InstanceID);
     echo "OK";
     ';
 
