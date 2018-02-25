@@ -1,7 +1,7 @@
 [![Version](https://img.shields.io/badge/Symcon-PHPModul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
-[![Version](https://img.shields.io/badge/Modul%20Version-1.00-blue.svg)]()
+[![Version](https://img.shields.io/badge/Modul%20Version-2.00-blue.svg)]()
 [![Version](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)  
-[![Version](https://img.shields.io/badge/Symcon%20Version-4.3%20%3E-green.svg)](https://www.symcon.de/forum/threads/30857-IP-Symcon-4-3-%28Stable%29-Changelog)
+[Version](https://img.shields.io/badge/Symcon%20Version-5.0%20%3E-green.svg)
 
 # G-Homa Plug  
 Einbindung einer WLAN-Steckdose von der Firma 'G-Homa'.  
@@ -27,7 +27,7 @@ Einbindung einer WLAN-Steckdose von der Firma 'G-Homa'.
 
 ## 2. Voraussetzungen
 
- - IPS 4.3 oder höher  
+ - IPS 5.0 oder höher  
  - G-Homa WLAN-Steckdosen  
 
 ## 3. Software-Installation
@@ -82,6 +82,9 @@ Im Fehlerfall wird eine Warnung erzeugt und `false`zurück gegeben.
 ## 8. Anhang
 
 **Changlog:**  
+
+Version 2.0:  
+ - Geräte werden über den Server Socket angebunden anstatt wie bisher über einen Client Socket (Nur für IPS 5.0)  
 
 Version 1.0:  
  - Erstes offizielles Release  

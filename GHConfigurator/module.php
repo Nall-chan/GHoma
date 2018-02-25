@@ -1,5 +1,6 @@
 <?php
 
+declare(strict_types = 1);
 /**
  * @addtogroup ghoma
  * @{
@@ -7,9 +8,9 @@
  * @package       GHoma
  * @file          module.php
  * @author        Michael Tröger <micha@nall-chan.net>
- * @copyright     2017 Michael Tröger
+ * @copyright     2018 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
- * @version       1.0
+ * @version       2.0
  */
 require_once(__DIR__ . "/../libs/GHomaTraits.php");  // diverse Klassen
 
@@ -21,13 +22,12 @@ require_once(__DIR__ . "/../libs/GHomaTraits.php");  // diverse Klassen
  */
 class GHomaConfigurator extends ipsmodule
 {
+
     use BufferHelper,
         DebugHelper,
-        InstanceStatus
-    {
+        InstanceStatus {
         InstanceStatus::MessageSink as IOMessageSink;
     }
-
     /**
      * Ein UDP-Socket.
      * @var resource
@@ -162,18 +162,13 @@ class GHomaConfigurator extends ipsmodule
         $this->SendDebug('Found', $Devices, 0);
         $InstanceIDListe = IPS_GetInstanceListByModuleID("{5F0CF4B0-7395-4ABF-B10F-AA0109A0F016}");
         foreach ($InstanceIDListe as $InstanceID) {
-            // Fremde Geräte überspringen
-            $ParentID = IPS_GetInstance($InstanceID)['ConnectionID'];
-            if ($ParentID == 0) {
-                continue;
-            }
-            $PlugIP = IPS_GetProperty($ParentID, 'Host');
+            $PlugIP = IPS_GetProperty($InstanceID, 'Host');
             $Plug = array(
                 'InstanceID' => $InstanceID,
-                'PlugIP' => $PlugIP,
-                'PlugMAC' => $this->Translate('unknow'),
-                'PlugType' => $this->Translate('unknow'),
-                'Name' => IPS_GetName($InstanceID)
+                'PlugIP'     => $PlugIP,
+                'PlugMAC'    => $this->Translate('unknow'),
+                'PlugType'   => $this->Translate('unknow'),
+                'Name'       => IPS_GetName($InstanceID)
             );
             $FoundIndex = array_key_exists($PlugIP, $Devices);
             if ($FoundIndex === false) {
@@ -191,10 +186,10 @@ class GHomaConfigurator extends ipsmodule
         foreach ($Devices as $PlugIP => $PlugData) {
             $Plug = array(
                 'InstanceID' => 0,
-                'PlugIP' => $PlugIP,
-                'PlugMAC' => $PlugData[0],
-                'PlugType' => $PlugData[1],
-                'Name' => ''
+                'PlugIP'     => $PlugIP,
+                'PlugMAC'    => $PlugData[0],
+                'PlugType'   => $PlugData[1],
+                'Name'       => ''
             );
             $Liste[] = $Plug;
             $NewPlugs++;
@@ -247,20 +242,25 @@ class GHomaConfigurator extends ipsmodule
     print_r(GHOMA_GetDeviceData($id, $Plugs["PlugIP"]));
     ';
 
-        $data['actions'][9]['onClick'] = '
+        $data['actions'][10]['onClick'] = '
     if ($Plugs["PlugIP"] == "")
     {
         echo "' . $this->Translate("No plug selected!") . '";
         return;
     }
-    $result = GHOMA_WriteDeviceData($id,$Plugs["PlugIP"],"NETP","TCP,Server,4196,255.255.255.255");
+    if ($Host == "")
+    {
+        echo "' . $this->Translate("No IPS Host given!") . '";
+        return;
+    }
+    $result = GHOMA_WriteDeviceData($id,$Plugs["PlugIP"],"NETP","TCP,Client,4196,$Host");
     if ($result === true)
         echo "OK";
     else
         echo "' . $this->Translate("Error on reconfigure plug.") . '";
     ';
 
-        $data['actions'][15]['onClick'] = '
+        $data['actions'][16]['onClick'] = '
     if ($Plugs["PlugIP"] == "")
     {
         echo "' . $this->Translate("No plug selected!") . '";
@@ -277,7 +277,7 @@ class GHomaConfigurator extends ipsmodule
         echo "' . $this->Translate("Error on reconfigure plug.") . '";
     ';
 
-        $data['actions'][18]['onClick'] = '
+        $data['actions'][19]['onClick'] = '
     if ($Plugs["PlugIP"] == "")
     {
         echo "' . $this->Translate("No plug selected!") . '";
@@ -290,7 +290,7 @@ class GHomaConfigurator extends ipsmodule
         echo "' . $this->Translate("Error on reconfigure plug.") . '";
     ';
 
-        $data['actions'][21]['onClick'] = '
+        $data['actions'][22]['onClick'] = '
     if ($Plugs["PlugIP"] == "")
     {
         echo "' . $this->Translate("No plug selected!") . '";
@@ -303,10 +303,15 @@ class GHomaConfigurator extends ipsmodule
         echo "' . $this->Translate("Error on reconfigure plug.") . '";
     ';
 
-        $data['actions'][25]['onClick'] = '
+        $data['actions'][26]['onClick'] = '
     if ($Plugs["PlugIP"] == "")
     {
         echo "' . $this->Translate("No plug selected!") . '";
+        return;
+    }
+    if ($Host == "")
+    {
+        echo "' . $this->Translate("No IPS Host given!") . '";
         return;
     }
     $result = GHOMA_WriteDeviceData($id,$Plugs["PlugIP"],"WSSSID", $WSSSID);
@@ -315,7 +320,7 @@ class GHomaConfigurator extends ipsmodule
     $Data[]= $WSKEY;
     $result = $result && GHOMA_WriteDeviceData($id,$Plugs["PlugIP"],"WSKEY", implode(",",$Data));
     $result = $result && GHOMA_WriteDeviceData($id,$Plugs["PlugIP"],"WMODE","STA");
-    $result = $result && GHOMA_WriteDeviceData($id,$Plugs["PlugIP"],"NETP","TCP,Server,4196,255.255.255.255");
+    $result = $result && GHOMA_WriteDeviceData($id,$Plugs["PlugIP"],"NETP","TCP,Client,4196,$Host");
     $result = $result && GHOMA_SendDeviceReset($id,$Plugs["PlugIP"]);
     if ($result === true)
         echo "OK";
@@ -465,6 +470,7 @@ class GHomaConfigurator extends ipsmodule
         $this->DevicesIP = $DevicesIP;
         $this->SendDebug('AllDevices', $DevicesIP, 0);
     }
+
 }
 
 /** @} */

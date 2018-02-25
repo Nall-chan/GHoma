@@ -1,5 +1,6 @@
 <?php
 
+declare(strict_types = 1);
 /*
  * @addtogroup ghoma
  * @{
@@ -9,7 +10,7 @@
  * @author        Michael Tröger <micha@nall-chan.net>
  * @copyright     2018 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
- * @version       1.1
+ * @version       2.0
  *
  */
 
@@ -188,6 +189,7 @@ class GHConnectState
     const UNKNOW = 0;
     const WAITFORINIT1 = 1;
     const WAITFORINIT2 = 2;
+
 }
 
 class GHMessage
@@ -259,6 +261,7 @@ class GHMessage
         }
         return 'INVALID COMMAND';
     }
+
 }
 
 /**
@@ -267,7 +270,6 @@ class GHMessage
  */
 trait DebugHelper
 {
-
     /**
      * Ergänzt SendDebug um Möglichkeit Objekte und Array auszugeben.
      *
@@ -296,6 +298,7 @@ trait DebugHelper
             parent::SendDebug($Message, (string) $Data, $Format);
         }
     }
+
 }
 
 /**
@@ -304,7 +307,6 @@ trait DebugHelper
  */
 trait InstanceStatus
 {
-
     /**
      * Interne Funktion des SDK.
      *
@@ -375,6 +377,7 @@ trait InstanceStatus
         }
         return false;
     }
+
 }
 
 /**
@@ -382,7 +385,6 @@ trait InstanceStatus
  */
 trait BufferHelper
 {
-
     /**
      * Wert einer Eigenschaft aus den InstanceBuffer lesen.
      *
@@ -431,6 +433,7 @@ trait BufferHelper
         }
         $this->SetBuffer($name, $Data);
     }
+
 }
 
 /**
@@ -438,7 +441,6 @@ trait BufferHelper
  */
 trait Semaphore
 {
-
     /**
      * Versucht eine Semaphore zu setzen und wiederholt dies bei Misserfolg bis zu 100 mal.
      * @param string $ident Ein String der den Lock bezeichnet.
@@ -464,6 +466,7 @@ trait Semaphore
     {
         IPS_SemaphoreLeave(__CLASS__ . '.' . (string) $this->InstanceID . (string) $ident);
     }
+
 }
 
 /**
@@ -471,7 +474,6 @@ trait Semaphore
  */
 trait VariableHelper
 {
-
     /**
      * Setzte eine IPS-Variable vom Typ bool auf den Wert von $value
      *
@@ -543,6 +545,7 @@ trait VariableHelper
         SetValueString($id, $Value);
         return true;
     }
+
 }
 
 /**
@@ -550,7 +553,6 @@ trait VariableHelper
  */
 trait VariableProfile
 {
-
     /**
      * Erstell und konfiguriert ein VariablenProfil für den Typ float
      *
@@ -599,6 +601,7 @@ trait VariableProfile
             IPS_SetVariableProfileDigits($Name, $Digits);
         }
     }
+
 }
 
 /** @} */

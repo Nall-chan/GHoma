@@ -24,7 +24,7 @@
                 {
                     "type": "List",
                     "name": "Plugs",
-                    "rowCount": 15,
+                    "rowCount": 10,
                     "add": false,
                     "delete": false,
                     "sort": {
@@ -62,6 +62,10 @@
                     "type": "Button",
                     "label": "Display config",
                     "onClick": ""
+                }, {
+                    "name": "Host",
+                    "type": "ValidationTextBox",
+                    "caption": "IPS Host or IP:"
                 }, {
                     "type": "Button",
                     "label": "Reconfigure for Symcon",

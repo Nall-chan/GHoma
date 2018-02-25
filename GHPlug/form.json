@@ -1,8 +1,9 @@
 {
     "elements":
-            [{
-                    "type": "Label",
-                    "label": "Plug IP configuration needs to be done in the I/O instance."
+            [  {
+                    "name": "Host",
+                    "type": "ValidationTextBox",
+                    "caption": "IP Address"
                 }
             ],
     "actions":

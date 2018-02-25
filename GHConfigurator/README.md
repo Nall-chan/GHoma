@@ -1,7 +1,7 @@
 [![Version](https://img.shields.io/badge/Symcon-PHPModul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
-[![Version](https://img.shields.io/badge/Modul%20Version-1.00-blue.svg)]()
+[![Version](https://img.shields.io/badge/Modul%20Version-2.00-blue.svg)]()
 [![Version](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)  
-[![Version](https://img.shields.io/badge/Symcon%20Version-4.3%20%3E-green.svg)](https://www.symcon.de/forum/threads/30857-IP-Symcon-4-3-%28Stable%29-Changelog)
+[Version](https://img.shields.io/badge/Symcon%20Version-5.0%20%3E-green.svg)
 
 # G-Homa Konfigurator  
 Vereinfacht das Anlegen von 'G-Home Plug'-Instanzen.  
@@ -29,14 +29,14 @@ Und kann zum konfigurieren von den Geräten genutzt werden.
 
 ## 2. Voraussetzungen
 
- - IPS 4.3 oder höher  
+ - IPS 5.0 oder höher  
  - G-Homa WLAN-Steckdosen  
 
 ## 3. Software-Installation
 
  Dieses Modul ist Bestandteil der GHoma-Library.
 
-**IPS 4.3:**  
+**IPS 5.0:**  
    Bei privater Nutzung: Über das 'Module-Control' in IPS folgende URL hinzufügen.  
     `git://github.com/Nall-chan/GHoma.git`  
 
@@ -62,6 +62,7 @@ Oder eine Instanz in IPS erzeugt werden.
 
 Bevor ein Gerät in IPS benutzt werden kann, muss es einmalig für Symcon umkonfiguriert werden.  
 Dies wird automatisch beim speichern der WLAN-Daten oder über den Button 'Umkonfigurieren für IPS' durchgeführt.  
+Dazu muss jedoch die IP-Adresse oder der Hostname des IPS-Server in das Textfeld eingetragen sein.  
 
 ## 5. Statusvariablen und Profile
 
@@ -78,6 +79,9 @@ Der Konfigurator besitzt keine dokumentierten Instanz-Funktionen.
 ## 8. Anhang
 
 **Changlog:**  
+
+Version 2.0:  
+ - Geräte werden über den Server Socket angebunden anstatt wie bisher über einen Client Socket (Nur für IPS 5.0)  
 
 Version 1.0:  
  - Erstes offizielles Release  

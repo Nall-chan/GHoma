@@ -29,6 +29,8 @@
             "unknow": "unbekannt",
             "Please close this form, and reopen it!": "Bitte diese Seite schließen und neu öffnen!",
             "No plug selected!": "Kein Gerät ausgewählt!",
+            "IPS Host or IP:": "IPS Host oder IP:",
+            "No IPS Host given!": "Kein IPS Host eingetragen",
             "Error on create instance.": "Fehler mein erzeúgen der Instanz.",
             "Error on reconfigure plug.": "Fehler beim umkonfigurieren des Gerätes.",
             "Error on Read Data": "Fehler beim lesen der Daten"
