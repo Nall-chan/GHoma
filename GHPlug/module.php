@@ -235,7 +235,6 @@ class GHomaPlug extends IPSModule
                 $this->TriggerCode .
                 $this->ShortMac .
                 "\xff\xfe\x00\x00\x10\x11\x00\x00\x01\x00\x00\x00" . ($State ? "\xff" : "\x00"));
-
         $this->Send($Message);
         $Result = $this->WaitForSwitch($State);
         if (!$Result) {
@@ -415,11 +414,11 @@ class GHomaPlug extends IPSModule
     public function ReceiveData($JSONString)
     {
         $data = json_decode($JSONString);
+        $this->Port = $data->ClientPort;
 
         switch ($data->Type) {
             case 1: /* Connected */
                 $this->SendDebug('Connected', '', 0);
-                $this->Port = $data->ClientPort;
                 $this->SendInit();
                 return;
             case 2: /* Disconnected */
