@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 /**
  * @addtogroup ghoma
  * @{
@@ -29,6 +29,7 @@ require_once __DIR__ . '/../libs/GHomaTraits.php';  // diverse Klassen
  */
 class GHomaPlug extends IPSModule
 {
+
     use VariableHelper,
         DebugHelper,
         InstanceStatus,
@@ -36,7 +37,6 @@ class GHomaPlug extends IPSModule
         VariableProfile {
         InstanceStatus::MessageSink as IOMessageSink; // MessageSink gibt es sowohl hier in der Klasse, als auch im Trait InstanceStatus. Hier wird für die Methode im Trait ein Alias benannt.
     }
-
     /**
      * Interne Funktion des SDK.
      */
@@ -69,15 +69,6 @@ class GHomaPlug extends IPSModule
                 @IPS_ConnectInstance($this->InstanceID, $ParentId);
             }
             $this->ParentID = $ParentId;
-
-            @$this->SendDataToParent(json_encode(
-                                    [
-                                        'DataID'     => '{C8792760-65CF-4C53-B5C7-A30FCC84FEFE}',
-                                        'ClientIP'   => $this->ReadPropertyString('Host'),
-                                        'ClientPort' => $this->Port,
-                                        'Buffer'     => '',
-                                        'Type'       => 2])
-            );
         }
         $this->RegisterTimer('Timeout', 0, 'GHOMA_Timeout($_IPS["TARGET"]);');
         $this->RegisterPropertyString('Host', $DeviceIP);
@@ -225,7 +216,6 @@ class GHomaPlug extends IPSModule
     }
 
     //################# PUBLIC
-
     /**
      * IPS-Instanz Funktion GHOMA_SendSwitch.
      * Schaltet den Controller ein oder aus.
@@ -270,7 +260,6 @@ class GHomaPlug extends IPSModule
     }
 
     //################# ActionHandler
-
     /**
      * Interne Funktion des SDK.
      */
@@ -287,7 +276,6 @@ class GHomaPlug extends IPSModule
     }
 
     //################# PRIVATE
-
     /**
      * Sendet die Initialisierung an den Controller und prüft die Rückmeldung.
      *
@@ -333,10 +321,15 @@ class GHomaPlug extends IPSModule
         switch ($Message->Command) {
             case GHMessage::CMD_HEARTBEAT:
                 $this->SetTimerInterval('Timeout', 0);
+                $this->ShortMac = substr($Message->Payload, 5, 3);
+                $this->TriggerCode = substr($Message->Payload, 3, 2);
+                if ($this->ConnectState != GHConnectState::CONNECTED) {
+                    $this->SetStatus(IS_ACTIVE);
+                    $this->ConnectState = GHConnectState::CONNECTED;
+                }
                 $Message = new GHMessage(GHMessage::CMD_HEARTBEATREPLY, '');
                 $this->Send($Message);
                 $this->SetTimerInterval('Timeout', 44 * 1000);
-
                 break;
             case GHMessage::CMD_INIT1REPLY:
                 $this->ShortMac = substr($Message->Payload, 5, 3);
@@ -416,7 +409,6 @@ class GHomaPlug extends IPSModule
     }
 
     //################# DATAPOINTS
-
     /**
      * Interne Funktion des SDK.
      */
@@ -498,6 +490,7 @@ class GHomaPlug extends IPSModule
                             'Buffer'     => utf8_encode($Message->toFrame())])
         );
     }
+
 }
 
 /* @} */
