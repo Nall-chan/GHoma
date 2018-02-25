@@ -442,16 +442,16 @@ class GHomaPlug extends IPSModule
                 $this->SendDebug('PREFIX error', strpos($Line, GHMessage::PREFIX), 0);
                 continue;
             }
-            $this->SendDebug('Receive Frame', $Line, 1);
+            //$this->SendDebug('Receive Frame', $Line, 1);
             $Line = substr($Line, $Start + 2);
             $Len = unpack('n', substr($Line, 0, 2))[1];
             $Checksum = ord($Line[strlen($Line) - 1]);
             $Payload = substr($Line, 2, -1);
-            $this->SendDebug('Frame Len', $Len, 0);
-            $this->SendDebug('Frame Checksum', $Checksum, 0);
-            $this->SendDebug('Frame Payload', $Payload, 1);
+            //$this->SendDebug('Frame Len', $Len, 0);
+            //$this->SendDebug('Frame Checksum', $Checksum, 0);
+            //$this->SendDebug('Frame Payload', $Payload, 1);
             if ($Len != strlen($Payload)) {
-                $this->SendDebug('Got invalid frame', '', 0);
+                $this->SendDebug('Got invalid frame',  GHMessage::PREFIX.$Line, 0);
                 continue;
             }
             $sum = 0;
@@ -461,7 +461,7 @@ class GHomaPlug extends IPSModule
             $checksumcalc = 0xFF - ($sum & 255);
 
             if ($Checksum != $checksumcalc) {
-                $this->SendDebug('Wrong CRC', $Line, 0);
+                $this->SendDebug('Wrong CRC', $Payload, 0);
                 continue;
             }
             $GHMessage = new GHMessage(ord($Payload[0]), substr($Payload, 1));
