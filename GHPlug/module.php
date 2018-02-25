@@ -1,22 +1,23 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 /**
  * @addtogroup ghoma
  * @{
  *
- * @package       GHoma
  * @file          module.php
+ *
  * @author        Michael Tröger <micha@nall-chan.net>
  * @copyright     2018 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
+ *
  * @version       2.0
  */
-require_once(__DIR__ . "/../libs/GHomaTraits.php");  // diverse Klassen
+require_once __DIR__ . '/../libs/GHomaTraits.php';  // diverse Klassen
 
 /**
  * GHomaPlug ist die Klasse für die WLAN Steckdosen der Firma G-Homa
- * Erweitert ipsmodule
+ * Erweitert ipsmodule.
  *
  * @property string $BufferIN Receive RAW Buffer.
  * @property GHMessage $LastMessage Letzte Antwort.
@@ -28,7 +29,6 @@ require_once(__DIR__ . "/../libs/GHomaTraits.php");  // diverse Klassen
  */
 class GHomaPlug extends IPSModule
 {
-
     use VariableHelper,
         DebugHelper,
         InstanceStatus,
@@ -36,21 +36,20 @@ class GHomaPlug extends IPSModule
         VariableProfile {
         InstanceStatus::MessageSink as IOMessageSink; // MessageSink gibt es sowohl hier in der Klasse, als auch im Trait InstanceStatus. Hier wird für die Methode im Trait ein Alias benannt.
     }
+
     /**
      * Interne Funktion des SDK.
-     *
-     * @access public
      */
     public function Create()
     {
         parent::Create();
         //$this->RequireParent("{3CFF0FD9-E306-41DB-9B5A-9D06D38576C3}");
-        $DeviceIP = "";
+        $DeviceIP = '';
         $this->ParentID = 0;
         if (IPS_GetKernelRunlevel() == KR_READY) {
             $ParentId = IPS_GetInstance($this->InstanceID)['ConnectionID'];
             if ($ParentId > 0) {
-                if (IPS_GetInstance($ParentId)['ModuleInfo']['ModuleID'] != "{8062CF2B-600E-41D6-AD4B-1BA66C32D6ED}") {
+                if (IPS_GetInstance($ParentId)['ModuleInfo']['ModuleID'] != '{8062CF2B-600E-41D6-AD4B-1BA66C32D6ED}') {
                     $DeviceIP = IPS_GetProperty($ParentId, 'Host');
                     @IPS_DisconnectInstance($this->InstanceID);
                     @IPS_DeleteInstance($ParentId);
@@ -60,7 +59,7 @@ class GHomaPlug extends IPSModule
             if ($ParentId == 0) {
                 $ParentId = @IPS_GetObjectIDByIdent('GHOMASSCK', 0);
                 if ($ParentId == 0) {
-                    $ParentId = @IPS_CreateInstance("{8062CF2B-600E-41D6-AD4B-1BA66C32D6ED}");
+                    $ParentId = @IPS_CreateInstance('{8062CF2B-600E-41D6-AD4B-1BA66C32D6ED}');
                     IPS_SetIdent($ParentId, 'GHOMASSCK');
                     IPS_SetName($ParentId, 'Server Socket (GHoma)');
                     IPS_SetProperty($ParentId, 'Port', 4196);
@@ -73,32 +72,30 @@ class GHomaPlug extends IPSModule
         }
         $this->RegisterTimer('Timeout', 0, 'GHOMA_Timeout($_IPS["TARGET"]);');
         $this->RegisterPropertyString('Host', $DeviceIP);
-        $this->BufferIN = "";
+        $this->BufferIN = '';
         $this->LastMessage = null;
         $this->ConnectState = GHConnectState::UNKNOW;
-        $this->FullMac = "";
+        $this->FullMac = '';
         $this->Port = 0;
     }
 
     /**
      * Interne Funktion des SDK.
-     *
-     * @access public
      */
     public function ApplyChanges()
     {
         $this->RegisterMessage(0, IPS_KERNELSTARTED);
         $this->RegisterMessage($this->InstanceID, FM_CONNECT);
         $this->RegisterMessage($this->InstanceID, FM_DISCONNECT);
-        $this->BufferIN = "";
+        $this->BufferIN = '';
         $this->LastMessage = null;
         $this->ConnectState = GHConnectState::UNKNOW;
-        $this->FullMac = "";
+        $this->FullMac = '';
         $this->Port = 0;
 
-        $this->RegisterVariableBoolean("STATE", "STATE", "~Switch", 1);
-        $this->EnableAction("STATE");
-        $this->RegisterVariableBoolean("BUTTON", "BUTTON", "", 2);
+        $this->RegisterVariableBoolean('STATE', 'STATE', '~Switch', 1);
+        $this->EnableAction('STATE');
+        $this->RegisterVariableBoolean('BUTTON', 'BUTTON', '', 2);
         $this->SetReceiveDataFilter('.*"ClientIP":"' . $this->ReadPropertyString('Host') . '".*');
 
         parent::ApplyChanges();
@@ -107,13 +104,12 @@ class GHomaPlug extends IPSModule
         $this->SetSummary($this->ReadPropertyString('Host'));
 
         // Wenn Kernel nicht bereit, dann warten... KR_READY kommt ja gleich
-        if (IPS_GetKernelRunlevel() <> KR_READY) {
+        if (IPS_GetKernelRunlevel() != KR_READY) {
             return;
         }
 
         $this->RegisterProfileFloat('VaR', '', '', ' var', 0, 0, 0, 2);
         $this->RegisterProfileFloat('VA', '', '', ' VA', 0, 0, 0, 2);
-
 
         $this->RegisterParent();
 
@@ -128,10 +124,10 @@ class GHomaPlug extends IPSModule
     /**
      * Interne Funktion des SDK.
      * Verarbeitet alle Nachrichten auf die wir uns registriert haben.
-     * @access public
-     * @param int $TimeStamp
-     * @param int $SenderID
-     * @param int $Message
+     *
+     * @param int       $TimeStamp
+     * @param int       $SenderID
+     * @param int       $Message
      * @param array|int $Data
      */
     public function MessageSink($TimeStamp, $SenderID, $Message, $Data)
@@ -152,7 +148,7 @@ class GHomaPlug extends IPSModule
     /**
      * Wird über den Trait InstanceStatus ausgeführt wenn sich der Status des Parent ändert.
      * Oder wenn sich die Zuordnung zum Parent ändert.
-     * @access protected
+     *
      * @param int $State Der neue Status des Parent.
      */
     protected function IOChangeState($State)
@@ -174,8 +170,6 @@ class GHomaPlug extends IPSModule
 
     /**
      * Interne Funktion des SDK.
-     *
-     * @access public
      */
     public function GetConfigurationForParent()
     {
@@ -198,8 +192,8 @@ class GHomaPlug extends IPSModule
      * IPS-Instanz Funktion GHOMA_SendSwitch.
      * Schaltet den Controller ein oder aus.
      *
-     * @access public
      * @param bool $State true für ein, false für aus.
+     *
      * @return bool True wenn Befehl erfolgreich ausgeführt wurde, sonst false.
      */
     private function SendSwitchAction(bool $State)
@@ -221,13 +215,14 @@ class GHomaPlug extends IPSModule
         }
     }
 
-    ################## PUBLIC
+    //################# PUBLIC
+
     /**
      * IPS-Instanz Funktion GHOMA_SendSwitch.
      * Schaltet den Controller ein oder aus.
      *
-     * @access public
      * @param bool $State true für ein, false für aus.
+     *
      * @return bool True wenn Befehl erfolgreich ausgeführt wurde, sonst false.
      */
     public function SendSwitch(bool $State)
@@ -265,11 +260,10 @@ class GHomaPlug extends IPSModule
         $this->Send($Message);
     }
 
-    ################## ActionHandler
+    //################# ActionHandler
+
     /**
      * Interne Funktion des SDK.
-     *
-     * @access public
      */
     public function RequestAction($Ident, $Value)
     {
@@ -283,13 +277,14 @@ class GHomaPlug extends IPSModule
         }
     }
 
-    ################## PRIVATE
+    //################# PRIVATE
+
     /**
      * Sendet die Initialisierung an den Controller und prüft die Rückmeldung.
      *
-     * @access private
-     * @return boolean True bei Erfolg, sonst false.
      * @throws Exception Wenn kein aktiver Parent verbunden ist.
+     *
+     * @return bool True bei Erfolg, sonst false.
      */
     private function SendInit()
     {
@@ -303,9 +298,9 @@ class GHomaPlug extends IPSModule
     /**
      * Warte auf eine Änderung der Statusvariable 'STATE'.
      *
-     * @access private
      * @param bool $State Der Status auf welchen gewartet wird.
-     * @return boolean True wenn das Event eintrifft, false wenn Timeout erreicht wurde.
+     *
+     * @return bool True wenn das Event eintrifft, false wenn Timeout erreicht wurde.
      */
     private function WaitForSwitch($State)
     {
@@ -329,7 +324,7 @@ class GHomaPlug extends IPSModule
         switch ($Message->Command) {
             case GHMessage::CMD_HEARTBEAT:
                 $this->SetTimerInterval('Timeout', 0);
-                $Message = new GHMessage(GHMessage::CMD_HEARTBEATREPLY, "");
+                $Message = new GHMessage(GHMessage::CMD_HEARTBEATREPLY, '');
                 $this->Send($Message);
                 $this->SetTimerInterval('Timeout', 44 * 1000);
 
@@ -370,11 +365,11 @@ class GHomaPlug extends IPSModule
                         $this->SetValueBoolean('BUTTON', ($Message->Payload[11] === chr(0x81)));
                         break;
                     case 0x31:
-                        $this->SetValueBoolean('ALARM', ($Message->Payload[15] === chr(0x02)), "~Alert");
+                        $this->SetValueBoolean('ALARM', ($Message->Payload[15] === chr(0x02)), '~Alert');
                         break;
                     case 0x39: // MESSUNG
                         $Part = "\x00" . substr($Message->Payload, 18, 3);
-                        $Value = unpack("N", $Part)[1];
+                        $Value = unpack('N', $Part)[1];
                         switch (ord($Message->Payload[16])) {
                             case 0x01: // Watt
                                 $this->SetValueFloat('Watt', $Value / 100, 'Watt.14490');
@@ -407,11 +402,10 @@ class GHomaPlug extends IPSModule
         }
     }
 
-    ################## DATAPOINTS
+    //################# DATAPOINTS
+
     /**
      * Interne Funktion des SDK.
-     *
-     * @access public
      */
     public function ReceiveData($JSONString)
     {
@@ -476,8 +470,6 @@ class GHomaPlug extends IPSModule
 
     /**
      * Interne Funktion des SDK.
-     *
-     * @access protected
      */
     protected function Send(GHMessage $Message)
     {
@@ -486,14 +478,13 @@ class GHomaPlug extends IPSModule
 //        }
         $this->SendDebug('Send', $Message, 0);
         $this->SendDataToParent(json_encode(
-                        array(
-                            "DataID"     => "{C8792760-65CF-4C53-B5C7-A30FCC84FEFE}",
-                            "ClientIP"   => $this->ReadPropertyString('Host'),
-                            "ClientPort" => $this->Port,
-                            "Buffer"     => utf8_encode($Message->toFrame())))
+                        [
+                            'DataID'     => '{C8792760-65CF-4C53-B5C7-A30FCC84FEFE}',
+                            'ClientIP'   => $this->ReadPropertyString('Host'),
+                            'ClientPort' => $this->Port,
+                            'Buffer'     => utf8_encode($Message->toFrame())])
         );
     }
-
 }
 
-/** @} */
+/* @} */
