@@ -427,11 +427,11 @@ class GHomaPlug extends IPSModule
         switch ($data->Type) {
             case 1: /* Connected */
                 $this->Port = $data->ClientPort;
-                $this->SendDebug('Connected', 'Port:' . $data - ClientPort, 0);
+                $this->SendDebug('Connected', 'Port:' . $data->ClientPort, 0);
                 $this->SendInit();
                 return;
             case 2: /* Disconnected */
-                $this->SendDebug('Disconnected', 'Port:' . $data - ClientPort, 0);
+                $this->SendDebug('Disconnected', 'Port:' . $data->ClientPort, 0);
                 $this->SetTimerInterval('Timeout', 0);
                 $this->SetStatus(IS_EBASE + 3);
                 $this->ConnectState = GHConnectState::UNKNOW;
