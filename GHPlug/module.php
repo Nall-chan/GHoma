@@ -20,12 +20,12 @@ require_once __DIR__ . '/../libs/GHomaTraits.php';  // diverse Klassen
  * Erweitert ipsmodule.
  *
  * @property string $BufferIN Receive RAW Buffer.
- * @property GHMessage $LastMessage Letzte Antwort.
  * @property GHConnectState $ConnectState Status.
  * @property string $FullMac MAC
  * @property string $ShortMac MAC
  * @property string $TriggerCode
  * @property int $Port
+ * @property string $IP
  */
 class GHomaPlug extends IPSModule
 {
@@ -73,7 +73,6 @@ class GHomaPlug extends IPSModule
         $this->RegisterTimer('Timeout', 0, 'GHOMA_Timeout($_IPS["TARGET"]);');
         $this->RegisterPropertyString('Host', $DeviceIP);
         $this->BufferIN = '';
-        $this->LastMessage = null;
         $this->ConnectState = GHConnectState::UNKNOW;
         $this->FullMac = '';
         $this->Port = 0;
@@ -87,11 +86,21 @@ class GHomaPlug extends IPSModule
         $this->RegisterMessage(0, IPS_KERNELSTARTED);
         $this->RegisterMessage($this->InstanceID, FM_CONNECT);
         $this->RegisterMessage($this->InstanceID, FM_DISCONNECT);
+
         $this->BufferIN = '';
-        $this->LastMessage = null;
         $this->ConnectState = GHConnectState::UNKNOW;
         $this->FullMac = '';
-        $this->Port = 0;
+        if ($this->Port > 0) {
+            $this->SendDebug('Send Disconnect', '', 0);
+            $this->SendDataToParent(json_encode(
+                            [
+                                'DataID'     => '{C8792760-65CF-4C53-B5C7-A30FCC84FEFE}',
+                                'ClientIP'   => $this->IP,
+                                'ClientPort' => $this->Port,
+                                'Type'       => 2,
+                                'Buffer'     => ''])
+            );
+        }
 
         $this->RegisterVariableBoolean('STATE', 'STATE', '~Switch', 1);
         $this->EnableAction('STATE');
@@ -102,7 +111,7 @@ class GHomaPlug extends IPSModule
 
         // Anzeige Port in der INFO Spalte
         $this->SetSummary($this->ReadPropertyString('Host'));
-
+        $this->IP = $this->ReadPropertyString('Host');
         // Wenn Kernel nicht bereit, dann warten... KR_READY kommt ja gleich
         if (IPS_GetKernelRunlevel() != KR_READY) {
             return;
@@ -155,7 +164,7 @@ class GHomaPlug extends IPSModule
     {
         // Wenn der IO Aktiv wurde
         if ($State == IS_ACTIVE) {
-            if (trim($this->ReadPropertyString('Host')) == '') {
+            if (trim($this->IP) == '') {
                 $this->SetStatus(IS_INACTIVE);
                 $this->ConnectState = GHConnectState::UNKNOW;
                 $this->SetTimerInterval('Timeout', 0);
@@ -484,8 +493,9 @@ class GHomaPlug extends IPSModule
         $this->SendDataToParent(json_encode(
                         [
                             'DataID'     => '{C8792760-65CF-4C53-B5C7-A30FCC84FEFE}',
-                            'ClientIP'   => $this->ReadPropertyString('Host'),
+                            'ClientIP'   => $this->IP,
                             'ClientPort' => $this->Port,
+                            'Type'       => 0,
                             'Buffer'     => utf8_encode($Message->toFrame())])
         );
     }
