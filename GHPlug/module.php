@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 /**
  * @addtogroup ghoma
  * @{
@@ -29,6 +29,7 @@ require_once __DIR__ . '/../libs/GHomaTraits.php';  // diverse Klassen
  */
 class GHomaPlug extends IPSModule
 {
+
     use VariableHelper,
         DebugHelper,
         InstanceStatus,
@@ -36,7 +37,6 @@ class GHomaPlug extends IPSModule
         VariableProfile {
         InstanceStatus::MessageSink as IOMessageSink; // MessageSink gibt es sowohl hier in der Klasse, als auch im Trait InstanceStatus. Hier wird für die Methode im Trait ein Alias benannt.
     }
-
     /**
      * Interne Funktion des SDK.
      */
@@ -216,7 +216,6 @@ class GHomaPlug extends IPSModule
     }
 
     //################# PUBLIC
-
     /**
      * IPS-Instanz Funktion GHOMA_SendSwitch.
      * Schaltet den Controller ein oder aus.
@@ -260,7 +259,6 @@ class GHomaPlug extends IPSModule
     }
 
     //################# ActionHandler
-
     /**
      * Interne Funktion des SDK.
      */
@@ -277,7 +275,6 @@ class GHomaPlug extends IPSModule
     }
 
     //################# PRIVATE
-
     /**
      * Sendet die Initialisierung an den Controller und prüft die Rückmeldung.
      *
@@ -411,22 +408,21 @@ class GHomaPlug extends IPSModule
     }
 
     //################# DATAPOINTS
-
     /**
      * Interne Funktion des SDK.
      */
     public function ReceiveData($JSONString)
     {
         $data = json_decode($JSONString);
-        $this->Port = $data->ClientPort;
 
         switch ($data->Type) {
             case 1: /* Connected */
-                $this->SendDebug('Connected', '', 0);
+                $this->Port = $data->ClientPort;
+                $this->SendDebug('Connected', 'Port:' . $data - ClientPort, 0);
                 $this->SendInit();
                 return;
             case 2: /* Disconnected */
-                $this->SendDebug('Disconnected', '', 0);
+                $this->SendDebug('Disconnected', 'Port:' . $data - ClientPort, 0);
                 $this->SetTimerInterval('Timeout', 0);
                 $this->SetStatus(IS_EBASE + 3);
                 $this->ConnectState = GHConnectState::UNKNOW;
@@ -455,7 +451,7 @@ class GHomaPlug extends IPSModule
             //$this->SendDebug('Frame Checksum', $Checksum, 0);
             //$this->SendDebug('Frame Payload', $Payload, 1);
             if ($Len != strlen($Payload)) {
-                $this->SendDebug('Got invalid frame',  GHMessage::PREFIX.$Line, 0);
+                $this->SendDebug('Got invalid frame', GHMessage::PREFIX . $Line, 0);
                 continue;
             }
             $sum = 0;
@@ -493,6 +489,7 @@ class GHomaPlug extends IPSModule
                             'Buffer'     => utf8_encode($Message->toFrame())])
         );
     }
+
 }
 
 /* @} */

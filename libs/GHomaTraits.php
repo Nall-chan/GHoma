@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types=1);
+declare(strict_types = 1);
 /*
  * @addtogroup ghoma
  * @{
@@ -189,6 +189,7 @@ class GHConnectState
     const UNKNOW = 0;
     const WAITFORINIT1 = 1;
     const WAITFORINIT2 = 2;
+
 }
 
 class GHMessage
@@ -260,6 +261,7 @@ class GHMessage
         }
         return 'INVALID COMMAND';
     }
+
 }
 
 /**
@@ -295,6 +297,7 @@ trait DebugHelper
             parent::SendDebug($Message, (string) $Data, $Format);
         }
     }
+
 }
 
 /**
@@ -370,6 +373,7 @@ trait InstanceStatus
         }
         return false;
     }
+
 }
 
 /**
@@ -424,6 +428,7 @@ trait BufferHelper
         }
         $this->SetBuffer($name, $Data);
     }
+
 }
 
 /**
@@ -459,6 +464,7 @@ trait Semaphore
     {
         IPS_SemaphoreLeave(__CLASS__ . '.' . (string) $this->InstanceID . (string) $ident);
     }
+
 }
 
 /**
@@ -480,7 +486,11 @@ trait VariableHelper
         if ($id == false) {
             $id = $this->RegisterVariableBoolean(str_replace(' ', '', $Ident), $this->Translate($Ident), $Profile);
         }
-        SetValueBoolean($id, $Value);
+        if (method_exists('IPSModule', 'SetValue')) {
+            parent::SetValue($Ident, $Value);
+        } else {
+            SetValueBoolean($id, $Value);
+        }
         return true;
     }
 
@@ -498,7 +508,11 @@ trait VariableHelper
         if ($id == false) {
             $id = $this->RegisterVariableInteger(str_replace(' ', '', $Ident), $this->Translate($Ident), $Profile);
         }
-        SetValueInteger($id, $Value);
+        if (method_exists('IPSModule', 'SetValue')) {
+            parent::SetValue($Ident, $Value);
+        } else {
+            SetValueInteger($id, $Value);
+        }
         return true;
     }
 
@@ -516,7 +530,11 @@ trait VariableHelper
         if ($id == false) {
             $id = $this->RegisterVariableFloat(str_replace(' ', '', $Ident), $this->Translate($Ident), $Profile);
         }
-        SetValueFloat($id, $Value);
+        if (method_exists('IPSModule', 'SetValue')) {
+            parent::SetValue($Ident, $Value);
+        } else {
+            SetValueFloat($id, $Value);
+        }
         return true;
     }
 
@@ -534,9 +552,14 @@ trait VariableHelper
         if ($id == false) {
             $id = $this->RegisterVariableString(str_replace(' ', '', $Ident), $this->Translate($Ident), $Profile);
         }
-        SetValueString($id, $Value);
+        if (method_exists('IPSModule', 'SetValue')) {
+            parent::SetValue($Ident, $Value);
+        } else {
+            SetValueString($id, $Value);
+        }
         return true;
     }
+
 }
 
 /**
@@ -590,6 +613,7 @@ trait VariableProfile
             IPS_SetVariableProfileDigits($Name, $Digits);
         }
     }
+
 }
 
 /* @} */
