@@ -1,6 +1,6 @@
 <?php
 
-declare(strict_types = 1);
+declare(strict_types=1);
 /*
  * @addtogroup ghoma
  * @{
@@ -189,7 +189,6 @@ class GHConnectState
     const UNKNOW = 0;
     const WAITFORINIT1 = 1;
     const WAITFORINIT2 = 2;
-
 }
 
 class GHMessage
@@ -261,7 +260,6 @@ class GHMessage
         }
         return 'INVALID COMMAND';
     }
-
 }
 
 /**
@@ -297,7 +295,6 @@ trait DebugHelper
             parent::SendDebug($Message, (string) $Data, $Format);
         }
     }
-
 }
 
 /**
@@ -373,7 +370,6 @@ trait InstanceStatus
         }
         return false;
     }
-
 }
 
 /**
@@ -428,7 +424,6 @@ trait BufferHelper
         }
         $this->SetBuffer($name, $Data);
     }
-
 }
 
 /**
@@ -464,7 +459,6 @@ trait Semaphore
     {
         IPS_SemaphoreLeave(__CLASS__ . '.' . (string) $this->InstanceID . (string) $ident);
     }
-
 }
 
 /**
@@ -559,7 +553,6 @@ trait VariableHelper
         }
         return true;
     }
-
 }
 
 /**
@@ -613,7 +606,6 @@ trait VariableProfile
             IPS_SetVariableProfileDigits($Name, $Digits);
         }
     }
-
 }
 
 /* @} */
