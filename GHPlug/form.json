@@ -10,12 +10,12 @@
             [
                 {
                     "type": "Button",
-                    "label": "ON",
+                    "caption": "ON",
                     "onClick": "GHOMA_SendSwitch($id, true);"
                 },
                 {
                     "type": "Button",
-                    "label": "OFF",
+                    "caption": "OFF",
                     "onClick": "GHOMA_SendSwitch($id, false);"
                 }
             ]

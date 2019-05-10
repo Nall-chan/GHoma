@@ -11,7 +11,7 @@ declare(strict_types=1);
  * @copyright     2018 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
  *
- * @version       2.0
+ * @version       5.0
  */
 require_once __DIR__ . '/../libs/GHomaTraits.php';  // diverse Klassen
 
@@ -23,10 +23,12 @@ require_once __DIR__ . '/../libs/GHomaTraits.php';  // diverse Klassen
  */
 class GHomaConfigurator extends ipsmodule
 {
-    use BufferHelper,
-        DebugHelper,
-        InstanceStatus {
-        InstanceStatus::MessageSink as IOMessageSink;
+
+    use \GHoma\BufferHelper,
+        \GHoma\DebugHelper,
+        \GHoma\InstanceStatus {
+        \GHoma\InstanceStatus::MessageSink as IOMessageSink;
+        //TODO IORegisterParent und IORequestAction oder ganz weg vom IO?
     }
     /**
      * Ein UDP-Socket.
@@ -320,7 +322,7 @@ class GHomaConfigurator extends ipsmodule
 
         $this->UDPSocket = fsockopen('udp://' . $Host, 48899, $errno, $errstr, 2);
         if (!$this->UDPSocket) {
-            trigger_error("ERROR: $errno - $errstr", E_USER_NOTICE);
+            trigger_error('ERROR:' . $errno . '-' . $errstr, E_USER_NOTICE);
             $this->SendDebug('Error:' . $Host, $errno . ' - ' . $errstr, 0);
             return false;
         }
@@ -454,6 +456,7 @@ class GHomaConfigurator extends ipsmodule
         $this->DevicesIP = $DevicesIP;
         $this->SendDebug('AllDevices', $DevicesIP, 0);
     }
+
 }
 
 /* @} */
