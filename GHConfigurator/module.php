@@ -1,5 +1,6 @@
 <?php
-
+//todo umbauen auf Discovery und Konfigurator
+// filtern auf nicht GHOMA Geräte
 declare(strict_types=1);
 /**
  * @addtogroup ghoma
@@ -28,7 +29,7 @@ class GHomaConfigurator extends ipsmodule
         \GHoma\DebugHelper,
         \GHoma\InstanceStatus {
         \GHoma\InstanceStatus::MessageSink as IOMessageSink;
-        //TODO IORegisterParent und IORequestAction oder ganz weg vom IO?
+        \GHoma\InstanceStatus::RequestAction as IORequestAction;
     }
     /**
      * Ein UDP-Socket.
@@ -118,6 +119,13 @@ class GHomaConfigurator extends ipsmodule
             $this->SetStatus(IS_ACTIVE);
         } else {
             $this->SetStatus(IS_INACTIVE);
+        }
+    }
+
+    public function RequestAction($Ident, $Value)
+    {
+        if ($this->IORequestAction($Ident, $Value)) {
+            return true;
         }
     }
 

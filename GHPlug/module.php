@@ -35,8 +35,8 @@ class GHomaPlug extends IPSModule
         \GHoma\InstanceStatus,
         \GHoma\VariableHelper,
         \GHoma\VariableProfileHelper {
-        \GHoma\InstanceStatus::MessageSink as IOMessageSink; // MessageSink gibt es sowohl hier in der Klasse, als auch im Trait InstanceStatus. Hier wird für die Methode im Trait ein Alias benannt.
-        //TODO IORegisterParent und IORequestAction
+        \GHoma\InstanceStatus::MessageSink as IOMessageSink;
+        \GHoma\InstanceStatus::RequestAction as IORequestAction;
     }
     /**
      * Interne Funktion des SDK.
@@ -44,12 +44,15 @@ class GHomaPlug extends IPSModule
     public function Create()
     {
         parent::Create();
-        //$this->RequireParent("{3CFF0FD9-E306-41DB-9B5A-9D06D38576C3}");
+        // $this->RequireParent("{3CFF0FD9-E306-41DB-9B5A-9D06D38576C3}");
+        // Funktioniert nicht, alle Devices sollen an einem 
+        // ServerSocket hängen, welcher auf Port 4196 empfängt.
         $DeviceIP = '';
         $this->ParentID = 0;
         if (IPS_GetKernelRunlevel() == KR_READY) {
             $ParentId = IPS_GetInstance($this->InstanceID)['ConnectionID'];
             if ($ParentId > 0) {
+                // Konverter für alte Instanzen, welche ClientSockets als Parent nutzten.
                 if (IPS_GetInstance($ParentId)['ModuleInfo']['ModuleID'] != '{8062CF2B-600E-41D6-AD4B-1BA66C32D6ED}') {
                     $DeviceIP = IPS_GetProperty($ParentId, 'Host');
                     @IPS_DisconnectInstance($this->InstanceID);
@@ -276,6 +279,9 @@ class GHomaPlug extends IPSModule
      */
     public function RequestAction($Ident, $Value)
     {
+        if ($this->IORequestAction($Ident, $Value)) {
+            return true;
+        }
         switch ($Ident) {
             case 'STATE':
                 $this->SendSwitchAction((bool) $Value);
@@ -439,6 +445,7 @@ class GHomaPlug extends IPSModule
             case 1: /* Connected */
                 $this->Port = $data->ClientPort;
                 $this->SendDebug('Connected', 'Port:' . $data->ClientPort, 0);
+                $this->LogMessage('Plug connected to Symcon', KL_SUCCESS);
                 $this->SendInit();
                 return;
             case 2: /* Disconnected */
@@ -446,6 +453,7 @@ class GHomaPlug extends IPSModule
                 $this->SetTimerInterval('Timeout', 0);
                 $this->SetStatus(IS_EBASE + 3);
                 $this->ConnectState = \GHoma\GHConnectState::UNKNOW;
+                $this->LogMessage('Plug disconnected to Symcon', KL_WARNING);
                 return;
         }
         // Datenstream zusammenfügen
