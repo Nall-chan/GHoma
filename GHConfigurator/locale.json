@@ -33,7 +33,8 @@
             "No IPS Host given!": "Kein IPS Host eingetragen",
             "Error on create instance.": "Fehler mein erzeúgen der Instanz.",
             "Error on reconfigure plug.": "Fehler beim umkonfigurieren des Gerätes.",
-            "Error on Read Data": "Fehler beim lesen der Daten"
+            "Error on Read Data": "Fehler beim lesen der Daten",
+            "This module is free for non-commercial use,\r\nDonations in support of the author are accepted here:": "Dieses Modul ist für die nicht kommerzielle Nutzung kostenlos,\r\nSchenkungen als Unterstützung für den Autor werden hier akzeptiert:"
         }
     }
 }

@@ -28,7 +28,6 @@ class GHConnectState
     const UNKNOW = 0;
     const WAITFORINIT1 = 1;
     const WAITFORINIT2 = 2;
-
 }
 
 class GHMessage
@@ -100,7 +99,6 @@ class GHMessage
         }
         return 'INVALID COMMAND';
     }
-
 }
 
 /* @} */

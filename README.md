@@ -1,28 +1,29 @@
 [![SDK](https://img.shields.io/badge/Symcon-PHPModul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
 [![Version](https://img.shields.io/badge/Modul%20Version-5.00-blue.svg)]()
-[![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)  
-[![Version](https://img.shields.io/badge/Symcon%20Version-5.0%20%3E-green.svg)](https://www.symcon.de/forum/threads/30857-IP-Symcon-5-0-%28Stable%29-Changelog)
-[![StyleCI](https://styleci.io/repos/115921415/shield?style=flat)](https://styleci.io/repos/115921415)  
+[![Version](https://img.shields.io/badge/Symcon%20Version-5.0%20%3E-green.svg)](https://www.symcon.de/forum/threads/30857-IP-Symcon-5-0-%28Stable%29-Changelog)  
+[![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+[![Check Style](https://github.com/Nall-chan/GHoma/workflows/Check%20Style/badge.svg)](https://github.com/Nall-chan/GHoma/actions) [![Run Tests](https://github.com/Nall-chan/GHoma/workflows/Run%20Tests/badge.svg)](https://github.com/Nall-chan/GHoma/actions)  
+[![Spenden](https://www.paypalobjects.com/de_DE/DE/i/btn/btn_donate_SM.gif)](#6-spenden)  
 
-# GHoma 
-Ermöglich das Auffinden, Konfigurieren und Steuern
+# GHoma  <!-- omit in toc -->
+Ermöglicht das Auffinden, Konfigurieren und Steuern
 von WLAN-Steckdosen vom Hersteller G-Homa.
 
 
-## Dokumentation
+## Inhaltsverzeichnis  <!-- omit in toc -->
 
-**Inhaltsverzeichnis**
-
-1. [Funktionsumfang](#1-funktionsumfang)  
-2. [Voraussetzungen](#2-voraussetzungen)  
-3. [Software-Installation](#3-software-installation) 
-4. [Einrichten der Instanzen in IP-Symcon](#4-einrichten-der-instanzen-in-ip-symcon)
-5. [Anhang](#5-anhang)  
-    1. [GUID der Module](#1-guid-der-module)
-    2. [Hinweise](#2-hinweise)
-    3. [Changlog](#3-changlog)
-    4. [Spenden](#4-spenden)
-6. [Lizenz](#6-lizenz)
+- [1. Funktionsumfang](#1-funktionsumfang)
+  - [G-Homa Plug:](#g-homa-plug)
+  - [G-Homa Konfigurator:](#g-homa-konfigurator)
+- [2. Voraussetzungen](#2-voraussetzungen)
+- [3. Software-Installation](#3-software-installation)
+- [4. Einrichten der Instanzen in IP-Symcon](#4-einrichten-der-instanzen-in-ip-symcon)
+- [5. Anhang](#5-anhang)
+  - [1. GUID der Module](#1-guid-der-module)
+  - [2. Hinweise](#2-hinweise)
+  - [3. Changlog](#3-changlog)
+- [6. Spenden](#6-spenden)
+- [7. Lizenz](#7-lizenz)
 
 ## 1. Funktionsumfang
 
@@ -67,7 +68,7 @@ Um die Geräte mit dem eigenen WLAN zu koppeln, kann die Hersteller APP genutzt 
 Alternativ ist es auch über folgenden Weg auch IPS möglich:  
 
 - IPS muss auf einem Gerät installiert sein, welches über eine WLAN-Schnittstelle verfügt.  
-- Die Geräte müssen auf Werkseinstellung gesetzt sein (schnelles Blinkden der LED).  
+- Die Geräte müssen auf Werkseinstellung gesetzt sein (schnelles Blinken der LED).  
 - Das neue Gerät mit einem ca. 3 Sekunden Tastendruck in den AP-Modus versetzen.  
 - Der Host von der IPS installation muss mit dem AP 'G-Homa' verbunden werden (DHCP muss aktiv sein!).  
 - Anschließend ist die Instanz 'G-Homa Configurator' zu öffnen. Wird kein Gerät angezeigt, so ist der Button 'Netzwerk durchsuchen' zu betätigen.  
@@ -94,7 +95,7 @@ Alternativ ist es auch über folgenden Weg auch IPS möglich:
  ausgelesen und verändert werden.  
  Der Zugriff ist nicht abgesichert und somit können auch gespeicherte WLAN-Zugangsdaten  
  ausgelesen werden.  
- Die Geräte sollten somit nicht im öffentlich zugäglichen Bereich betrieben werden,  
+ Die Geräte sollten somit nicht im öffentlich zugänglichen Bereich betrieben werden,  
  da über einen langen Tastendruck der AP-Modus (unverschlüsselt!) aktiviert wird und  
  alle Daten ausgelesen werden können.  
  
@@ -117,14 +118,14 @@ Version 1.1:
 Version 1.0:  
  - Erstes offizielles Release  
 
-### 4. Spenden  
+## 6. Spenden  
   
-  Die Library ist für die nicht kommzerielle Nutzung kostenlos, Schenkungen als Unterstützung für den Autor werden hier akzeptiert:  
+  Die Library ist für die nicht kommerzielle Nutzung kostenlos, Schenkungen als Unterstützung für den Autor werden hier akzeptiert:  
 
-<a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=G2SLW2MEMQZH2" target="_blank"><img src="https://www.paypalobjects.com/de_DE/DE/i/btn/btn_donate_LG.gif" border="0" /></a>
+<a href="https://www.paypal.com/donate?hosted_button_id=G2SLW2MEMQZH2" target="_blank"><img src="https://www.paypalobjects.com/de_DE/DE/i/btn/btn_donate_LG.gif" border="0" /></a>
 
-## 6. Lizenz
+[![Wunschliste](https://img.shields.io/badge/Wunschliste-Amazon-ff69fb.svg)](https://www.amazon.de/hz/wishlist/ls/YU4AI9AQT9F?ref_=wl_share)
 
-  IPS-Modul:  
+## 7. Lizenz
+
   [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)  
- 

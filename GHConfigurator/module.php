@@ -1,4 +1,5 @@
 <?php
+
 //todo umbauen auf Discovery und Konfigurator
 // filtern auf nicht GHOMA Geräte
 declare(strict_types=1);
@@ -24,7 +25,6 @@ require_once __DIR__ . '/../libs/GHomaTraits.php';  // diverse Klassen
  */
 class GHomaConfigurator extends ipsmodule
 {
-
     use \GHoma\BufferHelper,
         \GHoma\DebugHelper,
         \GHoma\InstanceStatus {
@@ -103,22 +103,6 @@ class GHomaConfigurator extends ipsmodule
                     $this->IOChangeState(IS_INACTIVE);
                 }
                 break;
-        }
-    }
-
-    /**
-     * Wird über den Trait InstanceStatus ausgeführt wenn sich der Status des Parent ändert.
-     * Oder wenn sich die Zuordnung zum Parent ändert.
-     *
-     * @param int $State Der neue Status des Parent.
-     */
-    protected function IOChangeState($State)
-    {
-        if ($State == IS_ACTIVE) {
-            $this->SendSearchBroadcast();
-            $this->SetStatus(IS_ACTIVE);
-        } else {
-            $this->SetStatus(IS_INACTIVE);
         }
     }
 
@@ -324,27 +308,6 @@ class GHomaConfigurator extends ipsmodule
         return json_encode($data);
     }
 
-    private function DeviceLogin(string $Host)
-    {
-        $this->SendDebug('Login:' . $Host, '', 0);
-
-        $this->UDPSocket = fsockopen('udp://' . $Host, 48899, $errno, $errstr, 2);
-        if (!$this->UDPSocket) {
-            trigger_error('ERROR:' . $errno . '-' . $errstr, E_USER_NOTICE);
-            $this->SendDebug('Error:' . $Host, $errno . ' - ' . $errstr, 0);
-            return false;
-        }
-        fwrite($this->UDPSocket, 'HF-A11ASSISTHREAD');
-        fread($this->UDPSocket, 100);
-        fwrite($this->UDPSocket, '+ok');        // Reply to first received data
-        fwrite($this->UDPSocket, "AT+VER\r\n");   // Request the version
-        $ResultHardware = $this->ReadAnswer($this->UDPSocket);
-        $DeviceData['Vendor'] = $ResultHardware[0];
-        $DeviceData['Typ'] = $ResultHardware[1];
-        $DeviceData['HW'] = $ResultHardware[2];
-        return $DeviceData;
-    }
-
     public function GetDeviceData(string $Host)
     {
         $DeviceData = @$this->DeviceLogin($Host);
@@ -384,22 +347,6 @@ class GHomaConfigurator extends ipsmodule
         $DeviceData['NTP'] = $ResultNTP[0];
         $this->SendDebug('GetData' . $Host, $DeviceData, 0);
         return $DeviceData;
-    }
-
-    private function ReadAnswer($fp)
-    {
-        $Line = stream_get_line($fp, 3000, "\r\n\r\n");
-        if ($Line === '+ok') {
-            $this->SendDebug('Result OK', $Line, 0);
-            return true;
-        }
-        if (strpos($Line, '+ok') === false) {
-            $this->SendDebug('Result ERR', $Line, 0);
-            return false;
-        }
-        $Data = substr($Line, strpos($Line, '+ok') + 4);
-        $this->SendDebug('Result', $Data, 0);
-        return explode(',', $Data);
     }
 
     public function ReadDeviceData(string $Host, string $Key)
@@ -465,6 +412,58 @@ class GHomaConfigurator extends ipsmodule
         $this->SendDebug('AllDevices', $DevicesIP, 0);
     }
 
+    /**
+     * Wird über den Trait InstanceStatus ausgeführt wenn sich der Status des Parent ändert.
+     * Oder wenn sich die Zuordnung zum Parent ändert.
+     *
+     * @param int $State Der neue Status des Parent.
+     */
+    protected function IOChangeState($State)
+    {
+        if ($State == IS_ACTIVE) {
+            $this->SendSearchBroadcast();
+            $this->SetStatus(IS_ACTIVE);
+        } else {
+            $this->SetStatus(IS_INACTIVE);
+        }
+    }
+
+    private function DeviceLogin(string $Host)
+    {
+        $this->SendDebug('Login:' . $Host, '', 0);
+
+        $this->UDPSocket = fsockopen('udp://' . $Host, 48899, $errno, $errstr, 2);
+        if (!$this->UDPSocket) {
+            trigger_error('ERROR:' . $errno . '-' . $errstr, E_USER_NOTICE);
+            $this->SendDebug('Error:' . $Host, $errno . ' - ' . $errstr, 0);
+            return false;
+        }
+        fwrite($this->UDPSocket, 'HF-A11ASSISTHREAD');
+        fread($this->UDPSocket, 100);
+        fwrite($this->UDPSocket, '+ok');        // Reply to first received data
+        fwrite($this->UDPSocket, "AT+VER\r\n");   // Request the version
+        $ResultHardware = $this->ReadAnswer($this->UDPSocket);
+        $DeviceData['Vendor'] = $ResultHardware[0];
+        $DeviceData['Typ'] = $ResultHardware[1];
+        $DeviceData['HW'] = $ResultHardware[2];
+        return $DeviceData;
+    }
+
+    private function ReadAnswer($fp)
+    {
+        $Line = stream_get_line($fp, 3000, "\r\n\r\n");
+        if ($Line === '+ok') {
+            $this->SendDebug('Result OK', $Line, 0);
+            return true;
+        }
+        if (strpos($Line, '+ok') === false) {
+            $this->SendDebug('Result ERR', $Line, 0);
+            return false;
+        }
+        $Data = substr($Line, strpos($Line, '+ok') + 4);
+        $this->SendDebug('Result', $Data, 0);
+        return explode(',', $Data);
+    }
 }
 
 /* @} */

@@ -29,7 +29,6 @@ require_once __DIR__ . '/../libs/GHomaTraits.php';  // diverse Klassen
  */
 class GHomaPlug extends IPSModule
 {
-
     use \GHoma\BufferHelper,
         \GHoma\DebugHelper,
         \GHoma\InstanceStatus,
@@ -45,7 +44,7 @@ class GHomaPlug extends IPSModule
     {
         parent::Create();
         // $this->RequireParent("{3CFF0FD9-E306-41DB-9B5A-9D06D38576C3}");
-        // Funktioniert nicht, alle Devices sollen an einem 
+        // Funktioniert nicht, alle Devices sollen an einem
         // ServerSocket hängen, welcher auf Port 4196 empfängt.
         $DeviceIP = '';
         $this->ParentID = 0;
@@ -159,29 +158,6 @@ class GHomaPlug extends IPSModule
     }
 
     /**
-     * Wird über den Trait InstanceStatus ausgeführt wenn sich der Status des Parent ändert.
-     * Oder wenn sich die Zuordnung zum Parent ändert.
-     *
-     * @param int $State Der neue Status des Parent.
-     */
-    protected function IOChangeState($State)
-    {
-        // Wenn der IO Aktiv wurde
-        if ($State == IS_ACTIVE) {
-            if (trim($this->IP) == '') {
-                $this->SetStatus(IS_INACTIVE);
-                $this->ConnectState = \GHoma\GHConnectState::UNKNOW;
-                $this->SetTimerInterval('Timeout', 0);
-            } else {
-                $this->SetTimerInterval('Timeout', 44 * 1000);
-            }
-        } else {
-            $this->ConnectState = \GHoma\GHConnectState::UNKNOW;
-            $this->SetTimerInterval('Timeout', 0);
-        }
-    }
-
-    /**
      * Interne Funktion des SDK.
      */
     public function GetConfigurationForParent()
@@ -290,6 +266,112 @@ class GHomaPlug extends IPSModule
                 echo $this->Translate('Invalid Ident');
                 break;
         }
+    }
+
+    //################# DATAPOINTS
+    /**
+     * Interne Funktion des SDK.
+     */
+    public function ReceiveData($JSONString)
+    {
+        $data = json_decode($JSONString);
+
+        switch ($data->Type) {
+            case 1: /* Connected */
+                $this->Port = $data->ClientPort;
+                $this->SendDebug('Connected', 'Port:' . $data->ClientPort, 0);
+                $this->LogMessage('Plug connected to Symcon', KL_SUCCESS);
+                $this->SendInit();
+                return;
+            case 2: /* Disconnected */
+                $this->SendDebug('Disconnected', 'Port:' . $data->ClientPort, 0);
+                $this->SetTimerInterval('Timeout', 0);
+                $this->SetStatus(IS_EBASE + 3);
+                $this->ConnectState = \GHoma\GHConnectState::UNKNOW;
+                $this->LogMessage('Plug disconnected to Symcon', KL_WARNING);
+                return;
+        }
+        // Datenstream zusammenfügen
+        $head = $this->BufferIN;
+        $Data = $head . utf8_decode($data->Buffer);
+        // Stream in einzelne Pakete schneiden
+        $Lines = explode(\GHoma\GHMessage::POSTFIX, $Data);
+        $tail = array_pop($Lines);
+        $this->BufferIN = $tail;
+        foreach ($Lines as $Line) {
+            $Start = strpos($Line, \GHoma\GHMessage::PREFIX);
+            if ($Start === false) {
+                $this->SendDebug('Receive invalid line', $Line, 1);
+                $this->SendDebug('PREFIX error', strpos($Line, \GHoma\GHMessage::PREFIX), 0);
+                continue;
+            }
+            //$this->SendDebug('Receive Frame', $Line, 1);
+            $Line = substr($Line, $Start + 2);
+            $Len = unpack('n', substr($Line, 0, 2))[1];
+            $Checksum = ord($Line[strlen($Line) - 1]);
+            $Payload = substr($Line, 2, -1);
+            //$this->SendDebug('Frame Len', $Len, 0);
+            //$this->SendDebug('Frame Checksum', $Checksum, 0);
+            //$this->SendDebug('Frame Payload', $Payload, 1);
+            if ($Len != strlen($Payload)) {
+                $this->SendDebug('Got invalid frame', \GHoma\GHMessage::PREFIX . $Line, 0);
+                continue;
+            }
+            $sum = 0;
+            for ($i = 0; $i < $Len; $i++) {
+                $sum += ord($Payload[$i]);
+            }
+            $checksumcalc = 0xFF - ($sum & 255);
+
+            if ($Checksum != $checksumcalc) {
+                $this->SendDebug('Wrong CRC', $Payload, 0);
+                continue;
+            }
+            $GHMessage = new \GHoma\GHMessage(ord($Payload[0]), substr($Payload, 1));
+            $this->SendDebug('Receive', $GHMessage, 0);
+
+            $this->Decode($GHMessage);
+        }
+        return true;
+    }
+
+    /**
+     * Wird über den Trait InstanceStatus ausgeführt wenn sich der Status des Parent ändert.
+     * Oder wenn sich die Zuordnung zum Parent ändert.
+     *
+     * @param int $State Der neue Status des Parent.
+     */
+    protected function IOChangeState($State)
+    {
+        // Wenn der IO Aktiv wurde
+        if ($State == IS_ACTIVE) {
+            if (trim($this->IP) == '') {
+                $this->SetStatus(IS_INACTIVE);
+                $this->ConnectState = \GHoma\GHConnectState::UNKNOW;
+                $this->SetTimerInterval('Timeout', 0);
+            } else {
+                $this->SetTimerInterval('Timeout', 44 * 1000);
+            }
+        } else {
+            $this->ConnectState = \GHoma\GHConnectState::UNKNOW;
+            $this->SetTimerInterval('Timeout', 0);
+        }
+    }
+
+    /**
+     * Interne Funktion des SDK.
+     */
+    protected function Send(\GHoma\GHMessage $Message)
+    {
+        $this->SendDebug('Send', $Message, 0);
+        $this->SendDataToParent(json_encode(
+                        [
+                            'DataID'     => '{C8792760-65CF-4C53-B5C7-A30FCC84FEFE}',
+                            'ClientIP'   => $this->IP,
+                            'ClientPort' => $this->Port,
+                            'Type'       => 0,
+                            'Buffer'     => utf8_encode($Message->toFrame())])
+        );
     }
 
     //################# PRIVATE
@@ -432,90 +514,6 @@ class GHomaPlug extends IPSModule
             // 01 0A C0 35 23 D3 3D 02 00 00 00 0F
         }
     }
-
-    //################# DATAPOINTS
-    /**
-     * Interne Funktion des SDK.
-     */
-    public function ReceiveData($JSONString)
-    {
-        $data = json_decode($JSONString);
-
-        switch ($data->Type) {
-            case 1: /* Connected */
-                $this->Port = $data->ClientPort;
-                $this->SendDebug('Connected', 'Port:' . $data->ClientPort, 0);
-                $this->LogMessage('Plug connected to Symcon', KL_SUCCESS);
-                $this->SendInit();
-                return;
-            case 2: /* Disconnected */
-                $this->SendDebug('Disconnected', 'Port:' . $data->ClientPort, 0);
-                $this->SetTimerInterval('Timeout', 0);
-                $this->SetStatus(IS_EBASE + 3);
-                $this->ConnectState = \GHoma\GHConnectState::UNKNOW;
-                $this->LogMessage('Plug disconnected to Symcon', KL_WARNING);
-                return;
-        }
-        // Datenstream zusammenfügen
-        $head = $this->BufferIN;
-        $Data = $head . utf8_decode($data->Buffer);
-        // Stream in einzelne Pakete schneiden
-        $Lines = explode(\GHoma\GHMessage::POSTFIX, $Data);
-        $tail = array_pop($Lines);
-        $this->BufferIN = $tail;
-        foreach ($Lines as $Line) {
-            $Start = strpos($Line, \GHoma\GHMessage::PREFIX);
-            if ($Start === false) {
-                $this->SendDebug('Receive invalid line', $Line, 1);
-                $this->SendDebug('PREFIX error', strpos($Line, \GHoma\GHMessage::PREFIX), 0);
-                continue;
-            }
-            //$this->SendDebug('Receive Frame', $Line, 1);
-            $Line = substr($Line, $Start + 2);
-            $Len = unpack('n', substr($Line, 0, 2))[1];
-            $Checksum = ord($Line[strlen($Line) - 1]);
-            $Payload = substr($Line, 2, -1);
-            //$this->SendDebug('Frame Len', $Len, 0);
-            //$this->SendDebug('Frame Checksum', $Checksum, 0);
-            //$this->SendDebug('Frame Payload', $Payload, 1);
-            if ($Len != strlen($Payload)) {
-                $this->SendDebug('Got invalid frame', \GHoma\GHMessage::PREFIX . $Line, 0);
-                continue;
-            }
-            $sum = 0;
-            for ($i = 0; $i < $Len; $i++) {
-                $sum += ord($Payload[$i]);
-            }
-            $checksumcalc = 0xFF - ($sum & 255);
-
-            if ($Checksum != $checksumcalc) {
-                $this->SendDebug('Wrong CRC', $Payload, 0);
-                continue;
-            }
-            $GHMessage = new \GHoma\GHMessage(ord($Payload[0]), substr($Payload, 1));
-            $this->SendDebug('Receive', $GHMessage, 0);
-
-            $this->Decode($GHMessage);
-        }
-        return true;
-    }
-
-    /**
-     * Interne Funktion des SDK.
-     */
-    protected function Send(\GHoma\GHMessage $Message)
-    {
-        $this->SendDebug('Send', $Message, 0);
-        $this->SendDataToParent(json_encode(
-                        [
-                            'DataID'     => '{C8792760-65CF-4C53-B5C7-A30FCC84FEFE}',
-                            'ClientIP'   => $this->IP,
-                            'ClientPort' => $this->Port,
-                            'Type'       => 0,
-                            'Buffer'     => utf8_encode($Message->toFrame())])
-        );
-    }
-
 }
 
 /* @} */
