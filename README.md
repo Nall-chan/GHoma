@@ -14,7 +14,7 @@ von WLAN-Steckdosen vom Hersteller G-Homa.
 
 - [1. Funktionsumfang](#1-funktionsumfang)
   - [G-Homa Plug:](#g-homa-plug)
-  - [G-Homa Konfigurator:](#g-homa-konfigurator)
+  - [G-Homa Discovery:](#g-homa-Discovery)
 - [2. Voraussetzungen](#2-voraussetzungen)
 - [3. Software-Installation](#3-software-installation)
 - [4. Einrichten der Instanzen in IP-Symcon](#4-einrichten-der-instanzen-in-ip-symcon)
@@ -32,7 +32,7 @@ von WLAN-Steckdosen vom Hersteller G-Homa.
  - Steuern des Schaltzustands.  
  - Empfang und Darstellung des Schaltzustands.  
 
-### [G-Homa Konfigurator:](GHConfigurator/)  
+### [G-Homa Discovery:](GHDiscovery/)  
 
  - Auflisten alle im Netzwerk verfügbaren Geräte.  
  - Erstellen von neuen 'G-Homa Plug'-Instanzen in IPS.  
@@ -56,9 +56,9 @@ von WLAN-Steckdosen vom Hersteller G-Homa.
 ## 4. Einrichten der Instanzen in IP-Symcon
 
 Details sind in der Dokumentation der jeweiligen Module beschrieben.  
-Es wird dingend empfohlen die Einrichtung mit dem G-Homa Konfigurator zu starten.  
+Es wird dingend empfohlen die Einrichtung mit dem G-Homa Discovery zu starten.  
 
-Die Geräte müssen eine spezielle Konfiguration erhalten, welche über den 'Konfigurator'  
+Die Geräte müssen eine spezielle Konfiguration erhalten, welche über den 'Discovery'  
 an die Geräte übertragen werden muss.  
 
 Damit IPS die Geräte findet, müssen diese im WLAN erreichbar sein.  
@@ -71,12 +71,12 @@ Alternativ ist es auch über folgenden Weg auch IPS möglich:
 - Die Geräte müssen auf Werkseinstellung gesetzt sein (schnelles Blinken der LED).  
 - Das neue Gerät mit einem ca. 3 Sekunden Tastendruck in den AP-Modus versetzen.  
 - Der Host von der IPS installation muss mit dem AP 'G-Homa' verbunden werden (DHCP muss aktiv sein!).  
-- Anschließend ist die Instanz 'G-Homa Configurator' zu öffnen. Wird kein Gerät angezeigt, so ist der Button 'Netzwerk durchsuchen' zu betätigen.  
+- Anschließend ist die Instanz 'G-Homa Discovery' zu öffnen. Wird kein Gerät angezeigt, so ist der Button 'Netzwerk durchsuchen' zu betätigen.  
 - Wird noch immer kein Gerät gefunden, so die übergeordnete Instanz 'Multicast-Socket' öffnen und einmal neu aktivieren.  
-- Das neu gefundene Gerät ist in der Liste des 'G-Homa Configurator' auszuwählen.  
+- Das neu gefundene Gerät ist in der Liste des 'G-Homa Discovery' auszuwählen.  
 - Anschließend müssen die WLAN-Daten im unteren Teil der Konfiguration eingetragen werden und abschließen mit dem Button 'Schreibe WLAN' an das Gerät übertragen werden.  
 - Das Gerät startet neu und kann ab sofort mit IPS verwendet werden.  
-- Weitere Konfiguration siehe im [G-Homa Konfigurator:](GHConfigurator/)  
+- Weitere Konfiguration siehe im [G-Homa Discovery:](GHDiscovery/)  
 
 ## 5. Anhang
 
@@ -86,7 +86,7 @@ Alternativ ist es auch über folgenden Weg auch IPS möglich:
 | Modul              | Typ          |Prefix  | GUID                                   |
 | :----------------: | :----------: | :----: | :------------------------------------: |
 | GHoma Plug         | Device       | GHOMA  | {5F0CF4B0-7395-4ABF-B10F-AA0109A0F016} |
-| GHoma Configurator | Configurator | GHOMA  | {535EF8FE-EE78-4385-8B61-D118FAE5AE5A} |
+| GHoma Discovery | Discovery | GHOMA  | {535EF8FE-EE78-4385-8B61-D118FAE5AE5A} |
 
 
 ### 2. Hinweise  

@@ -1,10 +1,10 @@
 {
     "id": "{535EF8FE-EE78-4385-8B61-D118FAE5AE5A}",
-    "name": "GHoma Configurator",
-    "type": 4,
+    "name": "GHoma Discovery",
+    "type": 5,
     "vendor": "G-Homa",
     "aliases": [
-        "G-Homa Configurator"
+        "G-Homa Discovery"
     ],
     "parentRequirements": [
         "{79827379-F36E-4ADA-8A95-5F8D1DC92FA9}"
@@ -14,5 +14,5 @@
         "{018EF6B5-AB94-40C6-AA53-46943E824ACF}"
     ],
     "prefix": "GHOMA",
-    "url": "https://github.com/Nall-chan/GHoma/blob/master/GHConfigurator/README.md"
+    "url": "https://github.com/Nall-chan/GHoma/blob/master/GHDiscovery/README.md"
 }

@@ -1,21 +1,12 @@
 {
     "translations": {
         "de": {
-            "Rescan network": "Netzwerk durchsuchen",
-            "IMPORTANT: You must close this page an reopen it to see the changes.": "WICHTIG: Diese Seite muss neu geöffnet werden um Änderungen anzuzeigen.",
-            "No plugs found!": "Keine Geräte gefunden!",
-            "Plugs found: %d": "Geräte gefunden: %d",
-            "New plugs: %d": "Neue Geräte: %d",
-            "Disconnected plugs: %d": "Getrennte Geräte: %d",
-            "No new plugs found!": "Keine neuen Geräte gefunden!",
-            "No disconnected plugs found!": "Keine unverbundenen Geräte gefunden!",
-            "List of all plugs and all instances:": "Liste aller Geräte und Instanzen:",
             "InstanceID": "InstanzID",
             "Type": "Typ",
             "MAC": "MAC",
             "IP-Address": "IP-Adresse",
             "Name": "Name",
-            "Create instance": "Instanz erzeugen",
+            "G-Homa Devices": "G-Homa Geräte",
             "Display config": "Konfig anzeigen",
             "Reconfigure for Symcon": "Umkonfigurieren für Symcon",
             "Use DHCP": "DHCP aktiv",

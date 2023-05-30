@@ -5,7 +5,7 @@
 [![Check Style](https://github.com/Nall-chan/GHoma/workflows/Check%20Style/badge.svg)](https://github.com/Nall-chan/GHoma/actions) [![Run Tests](https://github.com/Nall-chan/GHoma/workflows/Run%20Tests/badge.svg)](https://github.com/Nall-chan/GHoma/actions)  
 [![Spenden](https://www.paypalobjects.com/de_DE/DE/i/btn/btn_donate_SM.gif)](../README.md/#6-spenden)  
 
-# G-Homa Konfigurator  <!-- omit in toc -->
+# G-Homa Discovery  <!-- omit in toc -->
 Vereinfacht das Anlegen von 'G-Home Plug'-Instanzen.  
 Und kann zum konfigurieren von den Geräten genutzt werden.  
 
@@ -47,14 +47,14 @@ Und kann zum konfigurieren von den Geräten genutzt werden.
 Das Modul ist im Dialog 'Instanz hinzufügen' unter dem Hersteller 'G-Homa' zufinden.  
 ![Instanz hinzufügen](../imgs/add1.png)  
 
-Alternativ ist es auch in der Liste alle Konfiguratoren aufgeführt.  
+Alternativ ist es auch in der Liste alle Discoveryen aufgeführt.  
 ![Instanz hinzufügen](../imgs/add2.png)  
 
 Es wird automatisch eine 'Multicast-Socket' Instanz erzeugt.  
 Werden in dem sich öffnenden Konfigurationsformular keine Geräte angezeigt, so kann das erneute durchsuchen des Netzwerkes mit dem Button 'Netzwerk durchsuchen' gestartet werden.  
 
-Beim öffnen des Konfigurator wird folgender Dialog angezeigt.  
-![Konfigurator](../imgs/conf.png)  
+Beim öffnen des Discovery wird folgender Dialog angezeigt.  
+![Discovery](../imgs/conf.png)  
 
 Über das selektieren eines Eintrages in der Tabelle und anschließenden betätigen einer der Buttons,  
 können verschiedene Einstellungen im Gerät geändert werden.  
@@ -66,15 +66,15 @@ Dazu muss jedoch die IP-Adresse oder der Hostname des IPS-Server in das Textfeld
 
 ## 5. Statusvariablen und Profile
 
-Der Konfigurator besitzt keine Statusvariablen und Variablenprofile.  
+Der Discovery besitzt keine Statusvariablen und Variablenprofile.  
 
 ## 6. WebFront
 
-Der Konfigurator besitzt keine im WebFront darstellbaren Elemente.  
+Der Discovery besitzt keine im WebFront darstellbaren Elemente.  
 
 ## 7. PHP-Befehlsreferenz
 
-Der Konfigurator besitzt keine dokumentierten Instanz-Funktionen.  
+Der Discovery besitzt keine dokumentierten Instanz-Funktionen.  
 
 ## 8. Anhang
 

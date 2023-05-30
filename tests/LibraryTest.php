@@ -16,9 +16,9 @@ class LibraryTest extends TestCaseSymconValidation
         $this->validateModule(__DIR__ . '/../GHDiscovery');
     }*/
 
-    public function testValidateConfigurator(): void
+    public function testValidateDiscovery(): void
     {
-        $this->validateModule(__DIR__ . '/../GHConfigurator');
+        $this->validateModule(__DIR__ . '/../GHDiscovery');
     }
 
     public function testValidatePlug(): void

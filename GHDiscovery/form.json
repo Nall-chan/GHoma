@@ -1,164 +1,58 @@
 {
     "actions": [
         {
-            "type": "Button",
-            "caption": "Rescan network",
-            "onClick": ""
-        },
-        {
-            "type": "Label",
-            "caption": "IMPORTANT: You must close this page an reopen it to see the changes."
-        },
-        {
-            "type": "Label",
-            "caption": "No plugs found!"
-        },
-        {
-            "type": "Label",
-            "caption": "No new plugs found!"
-        },
-        {
-            "type": "Label",
-            "caption": "No disconnected plugs found!"
-        },
-        {
-            "type": "Label",
-            "caption": "List of all plugs and all instances:"
-        },
-        {
-            "type": "List",
+            "type": "Configurator",
             "name": "Plugs",
             "rowCount": 10,
-            "add": false,
-            "delete": false,
+            "delete": true,
             "sort": {
-                "column": "InstanceID",
+                "column": "instanceID",
                 "direction": "ascending"
             },
             "columns": [
                 {
                     "caption": "InstanceID",
-                    "name": "InstanceID",
-                    "width": "65px"
-                },
-                {
-                    "caption": "Type",
-                    "name": "PlugType",
-                    "width": "80px"
-                },
-                {
-                    "caption": "MAC",
-                    "name": "PlugMAC",
-                    "width": "90px"
-                },
-                {
-                    "caption": "IP-Address",
-                    "name": "PlugIP",
+                    "name": "instanceID",
                     "width": "100px"
                 },
                 {
+                    "caption": "Type",
+                    "name": "Model",
+                    "width": "100px"
+                },
+                {
+                    "caption": "MAC",
+                    "name": "MAC",
+                    "width": "150px"
+                },
+                {
+                    "caption": "IP-Address",
+                    "name": "IPAddress",
+                    "width": "150px"
+                },
+                {
                     "caption": "Name",
-                    "name": "Name",
+                    "name": "name",
                     "width": "auto"
                 }
             ],
             "values": []
         },
         {
-            "type": "Button",
-            "caption": "Create instance",
-            "onClick": ""
-        },
-        {
-            "type": "Button",
-            "caption": "Display config",
-            "onClick": ""
-        },
-        {
-            "name": "Host",
-            "type": "ValidationTextBox",
-            "caption": "IPS Host or IP:"
-        },
-        {
-            "type": "Button",
-            "caption": "Reconfigure for Symcon",
-            "onClick": ""
-        },
-        {
-            "type": "Label",
-            "caption": "----------------------------------------------------------------------------------------------"
-        },
-        {
-            "name": "DHCP",
-            "type": "CheckBox",
-            "caption": "Use DHCP"
-        },
-        {
-            "name": "IPAddress",
-            "type": "ValidationTextBox",
-            "caption": "IP-Address"
-        },
-        {
-            "name": "Subnet",
-            "type": "ValidationTextBox",
-            "caption": "Subnetmask"
-        },
-        {
-            "name": "Gateway",
-            "type": "ValidationTextBox",
-            "caption": "Gateway"
-        },
-        {
-            "type": "Button",
-            "caption": "Write network config",
-            "onClick": ""
-        },
-        {
-            "type": "Label",
-            "caption": "----------------------------------------------------------------------------------------------"
-        },
-        {
-            "name": "DNS",
-            "type": "ValidationTextBox",
-            "caption": "DNS"
-        },
-        {
-            "type": "Button",
-            "caption": "Write DNS",
-            "onClick": ""
-        },
-        {
-            "type": "Label",
-            "caption": "----------------------------------------------------------------------------------------------"
-        },
-        {
-            "name": "NTP",
-            "type": "ValidationTextBox",
-            "caption": "NTP"
-        },
-        {
-            "type": "Button",
-            "caption": "Write NTP",
-            "onClick": ""
-        },
-        {
-            "type": "Label",
-            "caption": "----------------------------------------------------------------------------------------------"
-        },
-        {
-            "name": "WSSSID",
-            "type": "ValidationTextBox",
-            "caption": "WLAN SSID"
-        },
-        {
-            "name": "WSKEY",
-            "type": "ValidationTextBox",
-            "caption": "Key (only WPA2PSK)"
-        },
-        {
-            "type": "Button",
-            "caption": "Write WLAN config",
-            "onClick": ""
+            "type": "PopupButton",
+            "caption": "Configure selected Device",
+            "name": "ConfigPopupButton",
+            "onClick": "IPS_RequestAction($id, 'DeviceConfigOpen', (isset($Plugs['IPAddress']) ? $Plugs['IPAddress'] : ''));",
+            "popup": {
+                "caption": "Configure Device",
+                "items": [
+                    {
+                        "type": "RowLayout",
+                        "name": "CurrentConfig",
+                        "items": []
+                    }
+                ]
+            }
         },
         {
             "type": "Label",

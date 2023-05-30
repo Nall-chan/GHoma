@@ -25,7 +25,7 @@ eval('declare(strict_types=1);namespace GHoma {?>' . file_get_contents(__DIR__ .
 class GHConnectState
 {
     const CONNECTED = -1;
-    const UNKNOW = 0;
+    const UNKNOWN = 0;
     const WAITFORINIT1 = 1;
     const WAITFORINIT2 = 2;
 }

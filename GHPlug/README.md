@@ -45,7 +45,7 @@ Einbindung einer WLAN-Steckdose von der Firma 'G-Homa'.
 
 ## 4. Einrichten der Instanzen in IP-Symcon
 
-Das Anlegen von neuen Instanzen kann komfortabel über den [G-Homa Konfigurator:](../GHConfigurator/) erfolgen.  
+Das Anlegen von neuen Instanzen kann komfortabel über den [G-Homa Discovery:](../GHDiscovery/) erfolgen.  
 
 Alternativ ist das Modul im Dialog 'Instanz hinzufügen' unter dem Hersteller 'G-Homa' zu finden.  
 ![Instanz hinzufügen](../imgs/add1.png)  
