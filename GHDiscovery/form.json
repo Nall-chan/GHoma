@@ -40,11 +40,11 @@
         },
         {
             "type": "PopupButton",
-            "caption": "Configure selected Device",
+            "caption": "Configure selected device",
             "name": "ConfigPopupButton",
             "onClick": "IPS_RequestAction($id, 'DeviceConfigOpen', (isset($Plugs['IPAddress']) ? $Plugs['IPAddress'] : ''));",
             "popup": {
-                "caption": "Configure Device",
+                "caption": "Configure device",
                 "items": [
                     {
                         "type": "RowLayout",

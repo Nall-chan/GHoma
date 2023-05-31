@@ -1,18 +1,18 @@
 {
     "translations": {
         "de": {
-            "Plug not connected": "Gerät nicht verbunden",
-            "Plug not response": "Gerät antwortet nicht",
+            "IP-Address": "IP-Adresse",
+            "Device not connected": "Gerät nicht verbunden",
+            "Device not response": "Gerät antwortet nicht",
             "Invalid Ident": "Ungültiger Ident",
             "Instance has no active Parent.": "Instanz hat keinen aktiven Parent.",
-            "Plug IP configuration needs to be done in the I/O instance.": "Geräte IP muss in der I/O Instanz eingetragen werden.",
             "STATE": "STATUS",
             "Power": "Leistung",
             "Consumption": "Verbrauch",
             "Voltage": "Spannung",
             "Current": "Strom",
             "Output": "Scheinleistung",
-            "PowerFactor": "Leistungsfaktor",
+            "Powerfactor": "Leistungsfaktor",
             "This module is free for non-commercial use,\r\nDonations in support of the author are accepted here:": "Dieses Modul ist für die nicht kommerzielle Nutzung kostenlos,\r\nSchenkungen als Unterstützung für den Autor werden hier akzeptiert:"
         }
     }
