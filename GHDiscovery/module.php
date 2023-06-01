@@ -28,7 +28,7 @@ class GHomaDiscovery extends IPSModule
     /**
      * The maximum number of milliseconds that will be allowed for the discovery request.
      */
-    const DISCOVERY_TIMEOUT_MS = 3000;
+    const DISCOVERY_TIMEOUT = 3;
     const DISCOVERY_PORT = 48899;
     const DISCOVERY_MSG = 'HF-A11ASSISTHREAD';
     const DISCOVERY_ADDRESS = '255.255.255.255';
@@ -100,9 +100,9 @@ class GHomaDiscovery extends IPSModule
         foreach ($Devices as $IPAddress => $Data) {
             $AddDevice = [
                 //'instanceID'        => 0,
-                'IPAddress'              => $IPAddress,
-                'MAC'                    => $Data[0],
-                'Model'                  => $Data[1],
+                'IPAddress'              => $Data[0],
+                'MAC'                    => $Data[1],
+                'Model'                  => $Data[2],
                 'name'                   => 'G-Home Plug - ' . $IPAddress
             ];
             $InstanceIdDevice = array_search($IPAddress, $InstanceIDListe);
@@ -180,7 +180,7 @@ class GHomaDiscovery extends IPSModule
                 if (@socket_bind($socket, $IP, self::DISCOVERY_PORT) == false) {
                     continue;
                 }
-                $discoveryTimeout = time() + self::DISCOVERY_TIMEOUT_MS;
+                $discoveryTimeout = time() + self::DISCOVERY_TIMEOUT;
                 $this->SendDebug('Search:' . $IP, self::DISCOVERY_MSG, 0);
                 if (@socket_sendto($socket, self::DISCOVERY_MSG, strlen(self::DISCOVERY_MSG), 0, self::DISCOVERY_ADDRESS, self::DISCOVERY_PORT) === false) {
                     $this->SendDebug('Error on send discovery message', $IP, 0);
@@ -206,7 +206,7 @@ class GHomaDiscovery extends IPSModule
                     // 0 = Client-IP
                     // 1 = MAC
                     // 2 = Typ
-                    $DevicesData[array_shift($Response)] = $Response;
+                    $DevicesData[$IPAddress] = $Response;
                 } while (time() < $discoveryTimeout);
                 socket_close($socket);
             } else {
@@ -319,7 +319,7 @@ class GHomaDiscovery extends IPSModule
                     [
                         'width'     => '180px',
                         'type'      => 'Button',
-                        'caption'   => $this->Translate('Write paring'),
+                        'caption'   => $this->Translate('paring'),
                         'onClick'   => [
                             '$Data[]= "' . $Host . '";',
                             '$Data[]= "NETP";',
