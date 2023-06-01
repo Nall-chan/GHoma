@@ -61,7 +61,7 @@ class GHomaDiscovery extends IPSModule
                 $this->UpdateFormField('Gateway', 'enabled', !$Value);
                 break;
             case 'ChangeServerIP':
-                    $this->UpdateFormField('ManualIP', 'enabled', ($Value == 'manual'));
+                $this->UpdateFormField('ManualIP', 'enabled', ($Value == 'manual'));
                 break;
             case 'WriteDevice':
                 $Values = json_decode($Value, true);
@@ -73,15 +73,15 @@ class GHomaDiscovery extends IPSModule
                     restore_error_handler();
                 }
                 break;
-                case 'SendDeviceReset':
-                    if (!$this->SendDeviceReset($Value)) {
-                        set_error_handler([$this, 'ConfigResultHandler']);
-                        trigger_error($this->Translate('Error on restart device'), E_USER_NOTICE);
-                        restore_error_handler();
-                    } else {
-                        $this->ReloadForm();
-                    }
-                    break;
+            case 'SendDeviceReset':
+                if (!$this->SendDeviceReset($Value)) {
+                    set_error_handler([$this, 'ConfigResultHandler']);
+                    trigger_error($this->Translate('Error on restart device'), E_USER_NOTICE);
+                    restore_error_handler();
+                } else {
+                    $this->ReloadForm();
+                }
+                break;
         }
     }
     /**
@@ -191,8 +191,6 @@ class GHomaDiscovery extends IPSModule
                 $IPAddress = '';
                 $Port = 0;
                 do {
-                    $Data = '';
-                    $IPAddress = '';
                     if (0 == @socket_recvfrom($socket, $Data, 2048, 0, $IPAddress, $Port)) {
                         continue;
                     }
@@ -641,7 +639,7 @@ class GHomaDiscovery extends IPSModule
         }
         $Data = substr($Line, strpos($Line, '+ok') + 4);
         $this->SendDebug('Result', $Data, 0);
-        return $Data; //explode(',', $Data);
+        return $Data;
     }
 }
 
