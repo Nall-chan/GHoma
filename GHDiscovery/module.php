@@ -11,7 +11,7 @@ declare(strict_types=1);
  * @copyright     2018 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
  *
- * @version       5.0
+ * @version       7.0
  */
 eval('declare(strict_types=1);namespace GHomaDiscovery {?>' . file_get_contents(dirname(__DIR__) . '/libs/helper/DebugHelper.php') . '}');
 
@@ -21,17 +21,17 @@ eval('declare(strict_types=1);namespace GHomaDiscovery {?>' . file_get_contents(
  *
  * @method bool SendDebug(string $Message, mixed $Data, int $Format)
  */
-class GHomaDiscovery extends IPSModule
+class GHomaDiscovery extends IPSModuleStrict
 {
     use \GHomaDiscovery\DebugHelper;
 
     /**
      * The maximum number of milliseconds that will be allowed for the discovery request.
      */
-    const DISCOVERY_TIMEOUT = 3;
-    const DISCOVERY_PORT = 48899;
-    const DISCOVERY_MSG = 'HF-A11ASSISTHREAD';
-    const DISCOVERY_ADDRESS = '255.255.255.255';
+    public const DISCOVERY_TIMEOUT = 3;
+    public const DISCOVERY_PORT = 48899;
+    public const DISCOVERY_MSG = 'HF-A11ASSISTHREAD';
+    public const DISCOVERY_ADDRESS = '255.255.255.255';
     /**
      * Ein UDP-Socket.
      *
@@ -49,7 +49,7 @@ class GHomaDiscovery extends IPSModule
         }
     }
 
-    public function RequestAction($Ident, $Value)
+    public function RequestAction(string $Ident, mixed $Value): void
     {
         switch ($Ident) {
             case 'DeviceConfigOpen':
@@ -61,7 +61,7 @@ class GHomaDiscovery extends IPSModule
                 $this->UpdateFormField('Gateway', 'enabled', !$Value);
                 break;
             case 'ChangeServerIP':
-                    $this->UpdateFormField('ManualIP', 'enabled', ($Value == 'manual'));
+                $this->UpdateFormField('ManualIP', 'enabled', ($Value == 'manual'));
                 break;
             case 'WriteDevice':
                 $Values = json_decode($Value, true);
@@ -73,21 +73,21 @@ class GHomaDiscovery extends IPSModule
                     restore_error_handler();
                 }
                 break;
-                case 'SendDeviceReset':
-                    if (!$this->SendDeviceReset($Value)) {
-                        set_error_handler([$this, 'ConfigResultHandler']);
-                        trigger_error($this->Translate('Error on restart device'), E_USER_NOTICE);
-                        restore_error_handler();
-                    } else {
-                        $this->ReloadForm();
-                    }
-                    break;
+            case 'SendDeviceReset':
+                if (!$this->SendDeviceReset($Value)) {
+                    set_error_handler([$this, 'ConfigResultHandler']);
+                    trigger_error($this->Translate('Error on restart device'), E_USER_NOTICE);
+                    restore_error_handler();
+                } else {
+                    $this->ReloadForm();
+                }
+                break;
         }
     }
     /**
      * Interne Funktion des SDK.
      */
-    public function GetConfigurationForm()
+    public function GetConfigurationForm(): string
     {
         $Form = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
         if ($this->GetStatus() == IS_CREATING) {
@@ -148,7 +148,7 @@ class GHomaDiscovery extends IPSModule
         return json_encode($Form);
     }
 
-    protected function ConfigResultHandler(int $errno, string $errstr)
+    protected function ConfigResultHandler(int $errno, string $errstr): bool
     {
         echo $errstr . "\r\n";
         return true;
@@ -167,7 +167,7 @@ class GHomaDiscovery extends IPSModule
         $this->SendDebug('Filter', $InstanceIDList, 0);
         return $InstanceIDList;
     }
-    private function Discover()
+    private function Discover(): array
     {
         $DevicesData = [];
         $MyIPs = array_column(Sys_GetNetworkInfo(), 'IP');
@@ -217,7 +217,7 @@ class GHomaDiscovery extends IPSModule
         return $DevicesData;
     }
 
-    private function DisplayDeviceConfigForm($Host)
+    private function DisplayDeviceConfigForm(?string $Host): void
     {
         if ($Host) {
             $WaitForm = [[
@@ -509,7 +509,7 @@ class GHomaDiscovery extends IPSModule
         $this->UpdateFormField('CurrentConfig', 'items', json_encode($CurrentConfig));
     }
 
-    private function GetDeviceData(string $Host)
+    private function GetDeviceData(string $Host): false|array
     {
         $DeviceData = $this->DeviceLogin($Host);
         if ($DeviceData == false) {
@@ -551,7 +551,7 @@ class GHomaDiscovery extends IPSModule
         return $DeviceData;
     }
 
-    private function ReadDeviceData(string $Host, string $Key)
+    private function ReadDeviceData(string $Host, string $Key): false|array
     {
         if ($this->UDPSocket == false) {
             if ($this->DeviceLogin($Host) == false) {
@@ -567,7 +567,7 @@ class GHomaDiscovery extends IPSModule
         return false;
     }
 
-    private function WriteDeviceData(string $Host, string $Key, array $Values)
+    private function WriteDeviceData(string $Host, string $Key, array $Values): bool|array
     {
         if ($this->UDPSocket == false) {
             if ($this->DeviceLogin($Host) == false) {
@@ -586,7 +586,7 @@ class GHomaDiscovery extends IPSModule
         return explode(',', $Data);
     }
 
-    private function SendDeviceReset(string $Host)
+    private function SendDeviceReset(string $Host): bool
     {
         if ($this->UDPSocket == false) {
             if ($this->DeviceLogin($Host) == false) {
@@ -598,7 +598,7 @@ class GHomaDiscovery extends IPSModule
         return true;
     }
 
-    private function DeviceLogin(string $Host)
+    private function DeviceLogin(string $Host): false|array
     {
         $this->SendDebug('Login:' . $Host, '', 0);
         $this->UDPSocket = fsockopen('udp://' . $Host, 48899, $errno, $errstr, 2);
@@ -623,7 +623,7 @@ class GHomaDiscovery extends IPSModule
         return $DeviceData;
     }
 
-    private function ReadAnswer()
+    private function ReadAnswer(): bool|string
     {
         $Line = stream_get_line($this->UDPSocket, 3000, "\r\n\r\n");
         if ($Line === false) {
@@ -639,7 +639,7 @@ class GHomaDiscovery extends IPSModule
         }
         $Data = substr($Line, strpos($Line, '+ok') + 4);
         $this->SendDebug('Result', $Data, 0);
-        return $Data; //explode(',', $Data);
+        return $Data;
     }
 }
 

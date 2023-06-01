@@ -1,6 +1,6 @@
 [![SDK](https://img.shields.io/badge/Symcon-PHPModul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
-[![Version](https://img.shields.io/badge/Modul%20Version-5.00-blue.svg)]()
-[![Version](https://img.shields.io/badge/Symcon%20Version-5.0%20%3E-green.svg)](https://www.symcon.de/forum/threads/30857-IP-Symcon-5-0-%28Stable%29-Changelog)  
+[![Version](https://img.shields.io/badge/Modul%20Version-7.00-blue.svg)]()
+![Version](https://img.shields.io/badge/Symcon%20Version-7.0%20%3E-green.svg)  
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 [![Check Style](https://github.com/Nall-chan/GHoma/workflows/Check%20Style/badge.svg)](https://github.com/Nall-chan/GHoma/actions) [![Run Tests](https://github.com/Nall-chan/GHoma/workflows/Run%20Tests/badge.svg)](https://github.com/Nall-chan/GHoma/actions)  
 [![Spenden](https://www.paypalobjects.com/de_DE/DE/i/btn/btn_donate_SM.gif)](../README.md/#6-spenden)  
@@ -18,27 +18,28 @@ Einbindung einer WLAN-Steckdose von der Firma 'G-Homa'.
 - [6. WebFront](#6-webfront)
 - [7. PHP-Befehlsreferenz](#7-php-befehlsreferenz)
 - [8. Anhang](#8-anhang)
+  - [1. Changelog](#1-changelog)
+  - [2. Spenden](#2-spenden)
 - [9. Lizenz](#9-lizenz)
 
 ## 1. Funktionsumfang
 
- - Empfangen und darstellen des aktuellen Schaltzustandes.  
+ - Empfangen und darstellen des aktuellen Schaltzustandes, sowie der Energiemessung.  
  - Steuern des Gerätes aus IPS über WebFront und PHP-Scripten.  
 
 ## 2. Voraussetzungen
 
- - IPS 5.0 oder höher  
+ - IPS 7.0 oder höher  
  - G-Homa WLAN-Steckdosen  
 
 ## 3. Software-Installation
 
  Dieses Modul ist Bestandteil der GHoma-Library.
 
-**IPS 5.0:**  
-   Bei privater Nutzung: Über das 'Module-Control' in IPS folgende URL hinzufügen.  
-    `git://github.com/Nall-chan/GHoma.git`  
-
+  
+  Über den 'Module-Store' in IPS das Modul 'G-Homa' hinzufügen.  
    **Bei kommerzieller Nutzung (z.B. als Errichter oder Integrator) wenden Sie sich bitte an den Autor.**  
+![Module-Store](imgs/install.png) 
 
 **Hinweis:**
   Eine eventuell vorhandene Firewall auf dem Host-System des IPS-Servers, muss so konfiguriert werden dass der Port 4196 TCP ankommend freigegeben ist.  
@@ -55,32 +56,33 @@ In dem sich öffnenden Konfigurationsformular muss die IP-Adresse des Gerätes e
 
 **Konfigurationsseite:**  
 
-| Eigenschaft   | Typ     | Standardwert | Funktion                   |
-| :-----------: | :-----: | :----------: | :------------------------: |
-| Host          | string  |              | Die IP-Adresse des Gerätes |
+| Eigenschaft |  Typ   | Standardwert |          Funktion          |
+| :---------: | :----: | :----------: | :------------------------: |
+|    Host     | string |              | Die IP-Adresse des Gerätes |
 
 
 ## 5. Statusvariablen und Profile
 
 Folgende Statusvariablen werden automatisch angelegt.  
 
-| Name            | Typ   | Ident       | Beschreibung                                                                    |
-| :-------------: | :---: | :---------: | :-----------------------------------------------------------------------------: |
-| STATE           | bool  | STATE       | True wenn das Gerät eingeschaltet ist                                           |
-| BUTTON          | bool  | BUTTON      | Wird auf True aktualisiert, wenn das Gerät über die Gerätetaste betätigt wurde. |
-| Leistung        | float | Power       | Leistung in Watt                                                                |
-| Verbrauch       | float | Consumption | Verbrauch in kWh                                                                |
-| Spannung        | float | Voltage     | Spannung in Volt                                                                |
-| Strom           | float | Current     | Strom in Ampere                                                                 |
-| Frequenz        | float | Frequenz    | Frequenz                                                                        |
-| Scheinleistung  | float | Output      | Scheinleistung in VA                                                            |
-| Leistungsfaktor | float | PowerFactor | Leistungsfaktor                                                                 |
+|      Name       |  Typ  |    Ident    |                                     Beschreibung                                      |
+| :-------------: | :---: | :---------: | :-----------------------------------------------------------------------------------: |
+|      STATE      | bool  |    STATE    |                         True wenn das Gerät eingeschaltet ist                         |
+|     BUTTON      | bool  |   BUTTON    |    Wird auf True aktualisiert, wenn das Gerät über die Gerätetaste betätigt wurde.    |
+|      ALARM      | bool  |    ALARM    | Wird auf True aktualisiert, wenn die Gerätetaste länger als 5 Sekunden gedrückt wird. |
+|    Leistung     | float |    Power    |                                   Leistung in Watt                                    |
+|    Verbrauch    | float | Consumption |                                   Verbrauch in kWh                                    |
+|    Spannung     | float |   Voltage   |                                   Spannung in Volt                                    |
+|      Strom      | float |   Current   |                                    Strom in Ampere                                    |
+|    Frequenz     | float |  Frequenz   |                                       Frequenz                                        |
+| Scheinleistung  | float |   Output    |                                 Scheinleistung in VA                                  |
+| Leistungsfaktor | float | PowerFactor |                                    Leistungsfaktor                                    |
 
 **Profile**:
 
-| Name            | Typ     | verwendet von Statusvariablen |
-| :-------------: | :-----: | :---------------------------: |
-| GHoma.VA        | float   | Scheinleistung                |
+|   Name   |  Typ  | verwendet von Statusvariablen |
+| :------: | :---: | :---------------------------: |
+| GHoma.VA | float |        Scheinleistung         |
 
 ## 6. WebFront
 
@@ -100,13 +102,17 @@ Im Fehlerfall wird eine Warnung erzeugt und `false`zurück gegeben.
 
 ## 8. Anhang
 
-**Changlog:**  
+### 1. Changelog
 
-Version 2.0:  
- - Geräte werden über den Server Socket angebunden anstatt wie bisher über einen Client Socket (Nur für IPS 5.0)  
+[Changelog der Library](../README.md#3-changelog)
 
-Version 1.0:  
- - Erstes offizielles Release  
+### 2. Spenden
+
+Die Library ist für die nicht kommerzielle Nutzung kostenlos, Schenkungen als Unterstützung für den Autor werden hier akzeptiert:  
+
+<a href="https://www.paypal.com/donate?hosted_button_id=G2SLW2MEMQZH2" target="_blank"><img src="https://www.paypalobjects.com/de_DE/DE/i/btn/btn_donate_LG.gif" border="0" /></a>
+
+[![Wunschliste](https://img.shields.io/badge/Wunschliste-Amazon-ff69fb.svg)](https://www.amazon.de/hz/wishlist/ls/YU4AI9AQT9F?ref_=wl_share)
 
 ## 9. Lizenz
 

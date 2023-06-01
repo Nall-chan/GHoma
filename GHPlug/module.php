@@ -38,20 +38,20 @@ require_once __DIR__ . '/../libs/GHomaTraits.php';  // diverse Klassen
  * @method void SetValueString(string $Ident, string $value)
  * @method bool SendDebug(string $Message, mixed $Data, int $Format)
  */
-class GHomaPlug extends IPSModule
+class GHomaPlug extends IPSModuleStrict
 {
     use \GHoma\BufferHelper,
         \GHoma\DebugHelper,
         \GHoma\InstanceStatus,
         \GHoma\VariableHelper,
         \GHoma\VariableProfileHelper {
-        \GHoma\InstanceStatus::MessageSink as IOMessageSink;
-        \GHoma\InstanceStatus::RequestAction as IORequestAction;
-    }
+            \GHoma\InstanceStatus::MessageSink as IOMessageSink;
+            \GHoma\InstanceStatus::RequestAction as IORequestAction;
+        }
     /**
      * Interne Funktion des SDK.
      */
-    public function Create()
+    public function Create(): void
     {
         parent::Create();
         // $this->RequireParent("{3CFF0FD9-E306-41DB-9B5A-9D06D38576C3}");
@@ -93,7 +93,7 @@ class GHomaPlug extends IPSModule
         $this->Port = 0;
     }
 
-    public function Destroy()
+    public function Destroy(): void
     {
         if (!IPS_InstanceExists($this->InstanceID)) {
             $this->UnregisterProfile('GHoma.VA');
@@ -104,7 +104,7 @@ class GHomaPlug extends IPSModule
     /**
      * Interne Funktion des SDK.
      */
-    public function ApplyChanges()
+    public function ApplyChanges(): void
     {
         $this->RegisterMessage(0, IPS_KERNELSTARTED);
         $this->RegisterMessage($this->InstanceID, FM_CONNECT);
@@ -152,7 +152,7 @@ class GHomaPlug extends IPSModule
      * @param int       $Message
      * @param array|int $Data
      */
-    public function MessageSink($TimeStamp, $SenderID, $Message, $Data)
+    public function MessageSink(int $TimeStamp, int $SenderID, int $Message, array $Data): void
     {
         $this->IOMessageSink($TimeStamp, $SenderID, $Message, $Data);
         switch ($Message) {
@@ -171,7 +171,7 @@ class GHomaPlug extends IPSModule
     /**
      * Interne Funktion des SDK.
      */
-    public function GetConfigurationForParent()
+    public function GetConfigurationForParent(): string
     {
         $Config['Port'] = 4196;
         return json_encode($Config);
@@ -193,10 +193,12 @@ class GHomaPlug extends IPSModule
             return false;
         }
         $Message = new \GHoma\GHMessage(
-                \GHoma\GHMessage::CMD_SWITCH, "\x01\x01\x0a\xe0" .
-                $this->TriggerCode .
-                $this->ShortMac .
-                "\xff\xfe\x00\x00\x10\x11\x00\x00\x01\x00\x00\x00" . ($State ? "\xff" : "\x00"));
+            \GHoma\GHMessage::CMD_SWITCH,
+            "\x01\x01\x0a\xe0" .
+            $this->TriggerCode .
+            $this->ShortMac .
+            "\xff\xfe\x00\x00\x10\x11\x00\x00\x01\x00\x00\x00" . ($State ? "\xff" : "\x00")
+        );
 
         $this->Send($Message);
 
@@ -211,7 +213,7 @@ class GHomaPlug extends IPSModule
     /**
      * Interne Funktion des SDK.
      */
-    public function RequestAction($Ident, $Value)
+    public function RequestAction(string $Ident, mixed $Value): void
     {
         if ($this->IORequestAction($Ident, $Value)) {
             return;
@@ -220,14 +222,14 @@ class GHomaPlug extends IPSModule
             case 'STATE':
                 $this->SendSwitch((bool) $Value);
                 break;
-                case 'HeartbeatTimeout':
-                    $this->ConnectState = \GHoma\GHConnectState::UNKNOWN;
-                    $this->SendDebug('Error', 'HeartbeatTimeout', 0);
-                    $this->LogMessage('Device is disconnected from Symcon', KL_WARNING);
-                    $this->SetTimerInterval('HeartbeatTimeout', 0);
-                    $this->SendDisconnect();
-                    $this->SetStatus(IS_EBASE + 3);
-                    break;
+            case 'HeartbeatTimeout':
+                $this->ConnectState = \GHoma\GHConnectState::UNKNOWN;
+                $this->SendDebug('Error', 'HeartbeatTimeout', 0);
+                $this->LogMessage('Device is disconnected from Symcon', KL_WARNING);
+                $this->SetTimerInterval('HeartbeatTimeout', 0);
+                $this->SendDisconnect();
+                $this->SetStatus(IS_EBASE + 3);
+                break;
             default:
                 echo $this->Translate('Invalid Ident');
                 break;
@@ -238,7 +240,7 @@ class GHomaPlug extends IPSModule
     /**
      * Interne Funktion des SDK.
      */
-    public function ReceiveData($JSONString)
+    public function ReceiveData(string $JSONString): string
     {
         $data = json_decode($JSONString);
 
@@ -332,8 +334,8 @@ class GHomaPlug extends IPSModule
                     'ClientPort' => $this->Port,
                     'Type'       => 0,
                     'Buffer'     => utf8_encode(
-                            $Message->toFrame()
-                        )
+                        $Message->toFrame()
+                    )
                 ]
             )
         );
@@ -365,9 +367,9 @@ class GHomaPlug extends IPSModule
     {
         $this->ConnectState = \GHoma\GHConnectState::UNKNOWN;
         $Message = new \GHoma\GHMessage(
-                 \GHoma\GHMessage::CMD_INIT1,
-                 \GHoma\GHMessage::INIT1
-                );
+            \GHoma\GHMessage::CMD_INIT1,
+            \GHoma\GHMessage::INIT1
+        );
         $this->Send($Message);
     }
 
@@ -397,10 +399,10 @@ class GHomaPlug extends IPSModule
             case \GHoma\GHMessage::CMD_HEARTBEAT:
                 $this->ShortMac = substr($Message->Payload, 5, 3);
                 $this->TriggerCode = substr($Message->Payload, 3, 2);
-               /* if ($this->ConnectState != \GHoma\GHConnectState::CONNECTED) {
-                    $this->SetStatus(IS_ACTIVE);
-                    $this->ConnectState = \GHoma\GHConnectState::CONNECTED;
-                }*/
+                /* if ($this->ConnectState != \GHoma\GHConnectState::CONNECTED) {
+                     $this->SetStatus(IS_ACTIVE);
+                     $this->ConnectState = \GHoma\GHConnectState::CONNECTED;
+                 }*/
                 $Message = new \GHoma\GHMessage(\GHoma\GHMessage::CMD_HEARTBEATREPLY, '');
                 $this->Send($Message);
                 break;
@@ -408,9 +410,9 @@ class GHomaPlug extends IPSModule
                 $this->ShortMac = substr($Message->Payload, 5, 3);
                 $this->TriggerCode = substr($Message->Payload, 3, 2);
                 $Message = new \GHoma\GHMessage(
-                        \GHoma\GHMessage::CMD_INIT2,
-                        \GHoma\GHMessage::INIT2
-                    );
+                    \GHoma\GHMessage::CMD_INIT2,
+                    \GHoma\GHMessage::INIT2
+                );
                 $this->Send($Message);
                 break;
 
@@ -483,9 +485,9 @@ class GHomaPlug extends IPSModule
                 }
                 break;
 
-            // FE Command ?
-            // FE
-            // 01 0A C0 35 23 D3 3D 02 00 00 00 0F
+                // FE Command ?
+                // FE
+                // 01 0A C0 35 23 D3 3D 02 00 00 00 0F
         }
         $this->SetTimerInterval('HeartbeatTimeout', 44 * 1000);
     }

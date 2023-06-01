@@ -3,11 +3,10 @@
     "author": "Michael Tröger",
     "name": "G-Homa Library",
     "url": "https://github.com/Nall-chan/GHoma",
-    "version": "5.00",
-    "build": 100,
-    "date": 1541607648,
+    "version": "7.00",
+    "build": 700,
+    "date": 1685602482,
     "compatibility": {
-        "version": "5.0",
-        "date": 1519140943
+        "version": "7.0"
     }
 }
