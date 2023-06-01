@@ -11,7 +11,7 @@ declare(strict_types=1);
  * @copyright     2018 Michael Tröger
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
  *
- * @version       5.0
+ * @version       6.0
  */
 eval('declare(strict_types=1);namespace GHomaDiscovery {?>' . file_get_contents(dirname(__DIR__) . '/libs/helper/DebugHelper.php') . '}');
 

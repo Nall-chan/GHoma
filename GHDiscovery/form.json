@@ -3,6 +3,7 @@
         {
             "type": "Configurator",
             "name": "Plugs",
+            "discoveryInterval": 60,
             "rowCount": 10,
             "delete": true,
             "sort": {

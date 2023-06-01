@@ -1,6 +1,6 @@
 [![SDK](https://img.shields.io/badge/Symcon-PHPModul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
-[![Version](https://img.shields.io/badge/Modul%20Version-5.00-blue.svg)]()
-[![Version](https://img.shields.io/badge/Symcon%20Version-5.0%20%3E-green.svg)](https://www.symcon.de/forum/threads/30857-IP-Symcon-5-0-%28Stable%29-Changelog)  
+[![Version](https://img.shields.io/badge/Modul%20Version-6.00-blue.svg)]()
+[![Version](https://img.shields.io/badge/Symcon%20Version-6.3%20%3E-green.svg)](https://www.symcon.de/de/service/dokumentation/installation/migrationen/v62-v63-q4-2022/)  
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 [![Check Style](https://github.com/Nall-chan/GHoma/workflows/Check%20Style/badge.svg)](https://github.com/Nall-chan/GHoma/actions) [![Run Tests](https://github.com/Nall-chan/GHoma/workflows/Run%20Tests/badge.svg)](https://github.com/Nall-chan/GHoma/actions)  
 [![Spenden](https://www.paypalobjects.com/de_DE/DE/i/btn/btn_donate_SM.gif)](../README.md/#6-spenden)  
@@ -18,7 +18,7 @@ Und kann zum konfigurieren von den Geräten genutzt werden.
 - [5. Statusvariablen und Profile](#5-statusvariablen-und-profile)
 - [6. WebFront](#6-webfront)
 - [7. PHP-Befehlsreferenz](#7-php-befehlsreferenz)
-- [8. Anhang](#8-anhang)
+- [8. Changelog](#8-changelog)
 - [9. Lizenz](#9-lizenz)
 
 ## 1. Funktionsumfang
@@ -29,18 +29,12 @@ Und kann zum konfigurieren von den Geräten genutzt werden.
 
 ## 2. Voraussetzungen
 
- - IPS 5.0 oder höher  
+ - IPS 6.3 oder höher  
  - G-Homa WLAN-Steckdosen  
 
 ## 3. Software-Installation
 
- Dieses Modul ist Bestandteil der GHoma-Library.
-
-**IPS 5.0:**  
-   Bei privater Nutzung: Über das 'Module-Control' in IPS folgende URL hinzufügen.  
-    `git://github.com/Nall-chan/GHoma.git`  
-
-   **Bei kommerzieller Nutzung (z.B. als Errichter oder Integrator) wenden Sie sich bitte an den Autor.**  
+ Dieses Modul ist Bestandteil der [GHoma-Library](../README.md#3-software-installation).
 
 ## 4. Einrichten der Instanzen in IP-Symcon
 
@@ -50,19 +44,14 @@ Das Modul ist im Dialog 'Instanz hinzufügen' unter dem Hersteller 'G-Homa' zufi
 Alternativ ist es auch in der Liste alle Discoveryen aufgeführt.  
 ![Instanz hinzufügen](../imgs/add2.png)  
 
-Es wird automatisch eine 'Multicast-Socket' Instanz erzeugt.  
-Werden in dem sich öffnenden Konfigurationsformular keine Geräte angezeigt, so kann das erneute durchsuchen des Netzwerkes mit dem Button 'Netzwerk durchsuchen' gestartet werden.  
-
 Beim öffnen des Discovery wird folgender Dialog angezeigt.  
 ![Discovery](../imgs/conf.png)  
 
-Über das selektieren eines Eintrages in der Tabelle und anschließenden betätigen einer der Buttons,  
+Über das selektieren eines Eintrages in der Tabelle und anschließenden betätigen des Button `Ausgewähltes Gerät konfigurieren`, 
 können verschiedene Einstellungen im Gerät geändert werden.  
-Oder eine Instanz in IPS erzeugt werden.  
 
 Bevor ein Gerät in IPS benutzt werden kann, muss es einmalig für Symcon umkonfiguriert werden.  
-Dies wird automatisch beim speichern der WLAN-Daten oder über den Button 'Umkonfigurieren für IPS' durchgeführt.  
-Dazu muss jedoch die IP-Adresse oder der Hostname des IPS-Server in das Textfeld eingetragen sein.  
+Dies wird durch Auswahl oder Eingabe der Symcon IP-Adresse unter `Symcon koppeln` mit betätigen des Button `koppeln`, durchgeführt.  
 
 ## 5. Statusvariablen und Profile
 
@@ -76,15 +65,9 @@ Der Discovery besitzt keine im WebFront darstellbaren Elemente.
 
 Der Discovery besitzt keine dokumentierten Instanz-Funktionen.  
 
-## 8. Anhang
+## 8. Changelog
 
-**Changlog:**  
-
-Version 2.0:  
- - Geräte werden über den Server Socket angebunden anstatt wie bisher über einen Client Socket (Nur für IPS 5.0)  
-
-Version 1.0:  
- - Erstes offizielles Release  
+[Changelog der Library](../README.md#3-changelog)
 
 ## 9. Lizenz
 
