@@ -49,7 +49,7 @@ Beim öffnen des Discovery wird folgender Dialog angezeigt.
 
 Über das selektieren eines Eintrages in der Tabelle und anschließenden betätigen des Button `Ausgewähltes Gerät konfigurieren`, 
 können verschiedene Einstellungen im Gerät geändert werden.  
-
+![Discovery](../imgs/conf2.png)  
 Bevor ein Gerät in IPS benutzt werden kann, muss es einmalig für Symcon umkonfiguriert werden.  
 Dies wird durch Auswahl oder Eingabe der Symcon IP-Adresse unter `Symcon koppeln` mit betätigen des Button `koppeln`, durchgeführt.  
 

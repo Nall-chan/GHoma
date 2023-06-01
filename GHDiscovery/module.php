@@ -547,7 +547,6 @@ class GHomaDiscovery extends IPSModuleStrict
         } catch (\Throwable $th) {
             return false;
         }
-
         return $DeviceData;
     }
 
