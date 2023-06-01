@@ -21,7 +21,7 @@ von WLAN-Steckdosen vom Hersteller G-Homa.
 - [5. Anhang](#5-anhang)
   - [1. GUID der Module](#1-guid-der-module)
   - [2. Hinweise](#2-hinweise)
-  - [3. Changelog](#3-Changelog)
+  - [3. Changlog](#3-changlog)
 - [6. Spenden](#6-spenden)
 - [7. Lizenz](#7-lizenz)
 
@@ -70,12 +70,8 @@ Alternativ ist es auch über folgenden Weg auch IPS möglich:
 - Die Geräte müssen auf Werkseinstellung gesetzt sein (schnelles Blinken der LED).  
 - Das neue Gerät mit einem ca. 3 Sekunden Tastendruck in den AP-Modus versetzen.  
 - Der Host von der IPS installation muss mit dem AP 'G-Homa' verbunden werden (DHCP muss aktiv sein!).  
-- Anschließend ist die Instanz 'G-Homa Discovery' zu öffnen. Wird kein Gerät angezeigt, so ist der Button 'Netzwerk durchsuchen' zu betätigen.  
-- Wird noch immer kein Gerät gefunden, so die übergeordnete Instanz 'Multicast-Socket' öffnen und einmal neu aktivieren.  
 - Anschließend ist die Instanz 'G-Homa Discovery' zu öffnen. Wird kein Gerät angezeigt, so ist der Button 'aktualisieren' zu betätigen.  
 - Das neu gefundene Gerät ist in der Liste des 'G-Homa Discovery' auszuwählen.  
-- Anschließend müssen die WLAN-Daten im unteren Teil der Konfiguration eingetragen werden und abschließen mit dem Button 'Schreibe WLAN' an das Gerät übertragen werden.  
-- Das Gerät startet neu und kann ab sofort mit IPS verwendet werden.  
 - Anschließend muss über den Button `Ausgewähltes Gerät konfigurieren` die WLAN Konfiguration eingetragen werden und abschließen mit dem Button 'Schreibe WLAN' an das Gerät übertragen werden.  
 - Weitere Konfiguration siehe im [G-Homa Discovery:](GHDiscovery/)  
 
@@ -105,7 +101,7 @@ Alternativ ist es auch über folgenden Weg auch IPS möglich:
  mit einer blinkenden LED an den Geräten signalisiert.  
 
 
-### 3. Changelog
+### 3. Changlog
 
 Version 6.0:  
  - Konfigurator in Discovery Instanz geändert.  
