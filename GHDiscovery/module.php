@@ -100,7 +100,7 @@ class GHomaDiscovery extends IPSModule
         foreach ($Devices as $IPAddress => $Data) {
             $AddDevice = [
                 //'instanceID'        => 0,
-                'IPAddress'              => $IPAddress,
+                'IPAddress'              => $Data[0],
                 'MAC'                    => $Data[1],
                 'Model'                  => $Data[2],
                 'name'                   => 'G-Home Plug - ' . $IPAddress
@@ -321,7 +321,7 @@ class GHomaDiscovery extends IPSModule
                     [
                         'width'     => '180px',
                         'type'      => 'Button',
-                        'caption'   => $this->Translate('Write paring'),
+                        'caption'   => $this->Translate('paring'),
                         'onClick'   => [
                             '$Data[]= "' . $Host . '";',
                             '$Data[]= "NETP";',
