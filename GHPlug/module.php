@@ -45,9 +45,9 @@ class GHomaPlug extends IPSModule
         \GHoma\InstanceStatus,
         \GHoma\VariableHelper,
         \GHoma\VariableProfileHelper {
-        \GHoma\InstanceStatus::MessageSink as IOMessageSink;
-        \GHoma\InstanceStatus::RequestAction as IORequestAction;
-    }
+            \GHoma\InstanceStatus::MessageSink as IOMessageSink;
+            \GHoma\InstanceStatus::RequestAction as IORequestAction;
+        }
     /**
      * Interne Funktion des SDK.
      */
