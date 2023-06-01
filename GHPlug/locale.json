@@ -4,6 +4,8 @@
             "IP-Address": "IP-Adresse",
             "Device not connected": "Gerät nicht verbunden",
             "Device not response": "Gerät antwortet nicht",
+            "Device is disconnected from Symcon":"Gerät hat sich von Symcon getrennt",
+            "Device will connect to Symcon":"Gerät hat sich mit Symcon verbunden",
             "Invalid Ident": "Ungültiger Ident",
             "Instance has no active Parent.": "Instanz hat keinen aktiven Parent.",
             "STATE": "STATUS",

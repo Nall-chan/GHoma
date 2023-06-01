@@ -223,7 +223,7 @@ class GHomaPlug extends IPSModule
                 case 'HeartbeatTimeout':
                     $this->ConnectState = \GHoma\GHConnectState::UNKNOWN;
                     $this->SendDebug('Error', 'HeartbeatTimeout', 0);
-                    $this->LogMessage('Device is disconnected from Symcon', KL_WARNING);
+                    $this->LogMessage($this->Translate('Device is disconnected from Symcon'), KL_WARNING);
                     $this->SetTimerInterval('HeartbeatTimeout', 0);
                     $this->SendDisconnect();
                     $this->SetStatus(IS_EBASE + 3);
@@ -246,13 +246,13 @@ class GHomaPlug extends IPSModule
             case 1: /* Connected */
                 $this->Port = $data->ClientPort;
                 $this->SendDebug('Connected', 'Port:' . $data->ClientPort, 0);
-                $this->LogMessage('Device will connect to Symcon', KL_NOTIFY);
+                $this->LogMessage($this->Translate('Device will connect to Symcon'), KL_NOTIFY);
                 $this->SendInit();
                 return '';
             case 2: /* Disconnected */
                 $this->ConnectState = \GHoma\GHConnectState::UNKNOWN;
                 $this->SendDebug('Error', 'Disconnect Port:' . $data->ClientPort, 0);
-                $this->LogMessage('Device is disconnected from Symcon', KL_WARNING);
+                $this->LogMessage($this->Translate('Device is disconnected from Symcon'), KL_WARNING);
                 $this->SetTimerInterval('HeartbeatTimeout', 0);
                 $this->SetStatus(IS_EBASE + 3);
                 return '';
