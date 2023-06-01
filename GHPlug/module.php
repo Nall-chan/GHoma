@@ -225,7 +225,7 @@ class GHomaPlug extends IPSModuleStrict
             case 'HeartbeatTimeout':
                 $this->ConnectState = \GHoma\GHConnectState::UNKNOWN;
                 $this->SendDebug('Error', 'HeartbeatTimeout', 0);
-                $this->LogMessage('Device is disconnected from Symcon', KL_WARNING);
+                $this->LogMessage($this->Translate('Device is disconnected from Symcon'), KL_WARNING);
                 $this->SetTimerInterval('HeartbeatTimeout', 0);
                 $this->SendDisconnect();
                 $this->SetStatus(IS_EBASE + 3);
@@ -248,20 +248,20 @@ class GHomaPlug extends IPSModuleStrict
             case 1: /* Connected */
                 $this->Port = $data->ClientPort;
                 $this->SendDebug('Connected', 'Port:' . $data->ClientPort, 0);
-                $this->LogMessage('Device will connect to Symcon', KL_NOTIFY);
+                $this->LogMessage($this->Translate('Device will connect to Symcon'), KL_NOTIFY);
                 $this->SendInit();
                 return '';
             case 2: /* Disconnected */
                 $this->ConnectState = \GHoma\GHConnectState::UNKNOWN;
                 $this->SendDebug('Error', 'Disconnect Port:' . $data->ClientPort, 0);
-                $this->LogMessage('Device is disconnected from Symcon', KL_WARNING);
+                $this->LogMessage($this->Translate('Device is disconnected from Symcon'), KL_WARNING);
                 $this->SetTimerInterval('HeartbeatTimeout', 0);
                 $this->SetStatus(IS_EBASE + 3);
                 return '';
         }
         // Datenstrom zusammenfügen
         $head = $this->BufferIN;
-        $Data = $head . utf8_decode($data->Buffer);
+        $Data = $head . hex2bin($data->Buffer);
         // Stream in einzelne Pakete schneiden
         $Lines = explode(\GHoma\GHMessage::POSTFIX, $Data);
         $tail = array_pop($Lines);
@@ -292,7 +292,7 @@ class GHomaPlug extends IPSModuleStrict
                 continue;
             }
             $GHMessage = new \GHoma\GHMessage(ord($Payload[0]), substr($Payload, 1));
-            $this->SendDebug('Receive', $GHMessage, 0);
+            $this->SendDebug('Receive', $GHMessage, 1);
             $this->Decode($GHMessage);
         }
         return '';
@@ -325,7 +325,7 @@ class GHomaPlug extends IPSModuleStrict
     //################# PRIVATE
     private function Send(\GHoma\GHMessage $Message): void
     {
-        $this->SendDebug('Send', $Message, 0);
+        $this->SendDebug('Send', $Message, 1);
         $this->SendDataToParent(
             json_encode(
                 [
@@ -333,7 +333,7 @@ class GHomaPlug extends IPSModuleStrict
                     'ClientIP'   => $this->IP,
                     'ClientPort' => $this->Port,
                     'Type'       => 0,
-                    'Buffer'     => utf8_encode(
+                    'Buffer'     => bin2hex(
                         $Message->toFrame()
                     )
                 ]

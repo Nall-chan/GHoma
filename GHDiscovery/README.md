@@ -18,9 +18,7 @@ Und kann zum konfigurieren von den Geräten genutzt werden.
 - [5. Statusvariablen und Profile](#5-statusvariablen-und-profile)
 - [6. WebFront](#6-webfront)
 - [7. PHP-Befehlsreferenz](#7-php-befehlsreferenz)
-- [8. Anhang](#8-anhang)
-  - [1. Changelog](#1-changelog)
-  - [2. Spenden](#2-spenden)
+- [8. Changelog](#8-changelog)
 - [9. Lizenz](#9-lizenz)
 
 ## 1. Funktionsumfang
@@ -36,19 +34,14 @@ Und kann zum konfigurieren von den Geräten genutzt werden.
 
 ## 3. Software-Installation
 
- Dieses Modul ist Bestandteil der GHoma-Library.
-
-  
-  Über den 'Module-Store' in IPS das Modul 'G-Homa' hinzufügen.  
-   **Bei kommerzieller Nutzung (z.B. als Errichter oder Integrator) wenden Sie sich bitte an den Autor.**  
-![Module-Store](imgs/install.png)  
+ Dieses Modul ist Bestandteil der [GHoma-Library](../README.md#3-software-installation).  
 
 ## 4. Einrichten der Instanzen in IP-Symcon
 
 Das Modul ist im Dialog 'Instanz hinzufügen' unter dem Hersteller 'G-Homa' zufinden.  
 ![Instanz hinzufügen](../imgs/add1.png)  
 
-Alternativ ist es auch in der Liste alle Discoveryen aufgeführt.  
+Alternativ ist es auch in der Liste alle Discovery-Instanzen aufgeführt.  
 ![Instanz hinzufügen](../imgs/add2.png)  
 
 Beim öffnen des Discovery wird folgender Dialog angezeigt.  
@@ -72,19 +65,9 @@ Der Discovery besitzt keine im WebFront darstellbaren Elemente.
 
 Der Discovery besitzt keine dokumentierten Instanz-Funktionen.  
 
-## 8. Anhang
+## 8. Changelog
 
-### 1. Changelog
-
-[Changelog der Library](../README.md#3-changelog)
-
-### 2. Spenden
-
-Die Library ist für die nicht kommerzielle Nutzung kostenlos, Schenkungen als Unterstützung für den Autor werden hier akzeptiert:  
-
-<a href="https://www.paypal.com/donate?hosted_button_id=G2SLW2MEMQZH2" target="_blank"><img src="https://www.paypalobjects.com/de_DE/DE/i/btn/btn_donate_LG.gif" border="0" /></a>
-
-[![Wunschliste](https://img.shields.io/badge/Wunschliste-Amazon-ff69fb.svg)](https://www.amazon.de/hz/wishlist/ls/YU4AI9AQT9F?ref_=wl_share)
+[Changelog der Library](../README.md#3-changelog)  
 
 ## 9. Lizenz
 
