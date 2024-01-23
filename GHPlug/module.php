@@ -67,15 +67,31 @@ class GHomaPlug extends IPSModuleStrict
                 if (IPS_GetInstance($ParentId)['ModuleInfo']['ModuleID'] != '{8062CF2B-600E-41D6-AD4B-1BA66C32D6ED}') {
                     $DeviceIP = IPS_GetProperty($ParentId, 'Host');
                     @IPS_DisconnectInstance($this->InstanceID);
-                    @IPS_DeleteInstance($ParentId);
+                    $deleteCS = true;
+                    foreach (IPS_GetInstanceList() as $Instance) {
+                        if (IPS_GetInstance($Instance)['ConnectionID'] == $ParentId) {
+                            // Wenn noch eine Instanz mit dem ClientSocket verbunden ist; nicht löschen.
+                            $deleteCS = false;
+                        }
+                    }
+                    if ($deleteCS) {
+                        @IPS_DeleteInstance($ParentId);
+                    }
                     $ParentId = 0;
                 }
             }
             if ($ParentId == 0) {
-                $ParentId = @IPS_GetObjectIDByIdent('GHOMASSCK', 0);
+                // passenden ServerSocket mir Port suchen
+                foreach (IPS_GetInstanceListByModuleID('{8062CF2B-600E-41D6-AD4B-1BA66C32D6ED}') as $Instance) {
+                    if (IPS_GetProperty($Instance, 'Port') == 4196) {
+                        // gefunden
+                        $ParentId = $Instance;
+                        break;
+                    }
+                }
                 if ($ParentId == 0) {
+                    // nicht gefunden
                     $ParentId = @IPS_CreateInstance('{8062CF2B-600E-41D6-AD4B-1BA66C32D6ED}');
-                    IPS_SetIdent($ParentId, 'GHOMASSCK');
                     IPS_SetName($ParentId, 'Server Socket (GHoma)');
                     IPS_SetProperty($ParentId, 'Port', 4196);
                     IPS_SetProperty($ParentId, 'Open', true);
