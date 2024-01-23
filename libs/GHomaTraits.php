@@ -24,24 +24,24 @@ eval('declare(strict_types=1);namespace GHoma {?>' . file_get_contents(__DIR__ .
 
 class GHConnectState
 {
-    const UNKNOWN = 0;
-    const CONNECTED = 1;
+    public const UNKNOWN = 0;
+    public const CONNECTED = 1;
 }
 
 class GHMessage
 {
-    const PREFIX = "\x5A\xA5";
-    const POSTFIX = "\x5B\xB5";
-    const INIT1 = "\x05\x0D\x07\x05\x07\x12";
-    const INIT2 = "\x01";
-    const CMD_INIT1 = 0x02;
-    const CMD_INIT1REPLY = 0x03;
-    const CMD_HEARTBEAT = 0x04;
-    const CMD_INIT2 = 0x05;
-    const CMD_HEARTBEATREPLY = 0x06;
-    const CMD_INIT2REPLY = 0x07;
-    const CMD_SWITCH = 0x10;
-    const CMD_STATUS = 0x90;
+    public const PREFIX = "\x5A\xA5";
+    public const POSTFIX = "\x5B\xB5";
+    public const INIT1 = "\x05\x0D\x07\x05\x07\x12";
+    public const INIT2 = "\x01";
+    public const CMD_INIT1 = 0x02;
+    public const CMD_INIT1REPLY = 0x03;
+    public const CMD_HEARTBEAT = 0x04;
+    public const CMD_INIT2 = 0x05;
+    public const CMD_HEARTBEATREPLY = 0x06;
+    public const CMD_INIT2REPLY = 0x07;
+    public const CMD_SWITCH = 0x10;
+    public const CMD_STATUS = 0x90;
 
     public $Command = 0;
     public $Payload = '';

@@ -28,10 +28,10 @@ class GHomaDiscovery extends IPSModule
     /**
      * The maximum number of milliseconds that will be allowed for the discovery request.
      */
-    const DISCOVERY_TIMEOUT = 3;
-    const DISCOVERY_PORT = 48899;
-    const DISCOVERY_MSG = 'HF-A11ASSISTHREAD';
-    const DISCOVERY_ADDRESS = '255.255.255.255';
+    public const DISCOVERY_TIMEOUT = 3;
+    public const DISCOVERY_PORT = 48899;
+    public const DISCOVERY_MSG = 'HF-A11ASSISTHREAD';
+    public const DISCOVERY_ADDRESS = '255.255.255.255';
     /**
      * Ein UDP-Socket.
      *
@@ -98,21 +98,17 @@ class GHomaDiscovery extends IPSModule
         $DeviceValues = [];
         $InstanceIDListe = $this->GetInstanceList('{5F0CF4B0-7395-4ABF-B10F-AA0109A0F016}', 'Host');
         foreach ($Devices as $IPAddress => $Data) {
+            $InstanceIdDevice = array_search($IPAddress, $InstanceIDListe);
+            if ($InstanceIdDevice) {
+                unset($InstanceIDListe[$InstanceIdDevice]);
+            }
             $AddDevice = [
-                //'instanceID'        => 0,
+                'instanceID'             => ($InstanceIdDevice ? $InstanceIdDevice : 0),
                 'IPAddress'              => $Data[0],
                 'MAC'                    => $Data[1],
                 'Model'                  => $Data[2],
-                'name'                   => 'G-Home Plug - ' . $IPAddress
+                'name'                   => ($InstanceIdDevice ? IPS_GetName($InstanceIdDevice) : 'G-Home Plug - ' . $IPAddress)
             ];
-            $InstanceIdDevice = array_search($IPAddress, $InstanceIDListe);
-            if ($InstanceIdDevice !== false) {
-                $AddDevice['name'] = IPS_GetName($InstanceIdDevice);
-                $AddDevice['instanceID'] = $InstanceIdDevice;
-                $AddDevice['host'] = $IPAddress;
-                unset($InstanceIDListe[$InstanceIdDevice]);
-            }
-
             $AddDevice['create'] = [
                 [
                     'moduleID'      => '{5F0CF4B0-7395-4ABF-B10F-AA0109A0F016}',
@@ -129,7 +125,6 @@ class GHomaDiscovery extends IPSModule
                     ]
                 ]
             ];
-
             $DeviceValues[] = $AddDevice;
         }
         foreach ($InstanceIDListe as $InstanceIdDevice => $IPAddress) {
@@ -547,7 +542,6 @@ class GHomaDiscovery extends IPSModule
         } catch (\Throwable $th) {
             return false;
         }
-
         return $DeviceData;
     }
 
