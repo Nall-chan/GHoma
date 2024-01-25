@@ -57,6 +57,7 @@ class GHomaPlug extends IPSModule
         // $this->RequireParent("{3CFF0FD9-E306-41DB-9B5A-9D06D38576C3}");
         // Funktioniert nicht, alle Devices sollen an einem
         // ServerSocket hängen, welcher auf Port 4196 empfängt.
+        $Active = false;
         $DeviceIP = '';
         $this->ParentID = 0;
         // Beim Update des Module -> Symcon läuft
@@ -65,6 +66,7 @@ class GHomaPlug extends IPSModule
             if ($ParentId > 0) {
                 // Konverter für alte Instanzen, welche ClientSockets als Parent nutzten.
                 if (IPS_GetInstance($ParentId)['ModuleInfo']['ModuleID'] != '{8062CF2B-600E-41D6-AD4B-1BA66C32D6ED}') {
+                    $Active = IPS_GetProperty($ParentId, 'Open');
                     $DeviceIP = IPS_GetProperty($ParentId, 'Host');
                     @IPS_DisconnectInstance($this->InstanceID);
                     $deleteCS = true;
@@ -94,7 +96,7 @@ class GHomaPlug extends IPSModule
                     $ParentId = @IPS_CreateInstance('{8062CF2B-600E-41D6-AD4B-1BA66C32D6ED}');
                     IPS_SetName($ParentId, 'Server Socket (GHoma)');
                     IPS_SetProperty($ParentId, 'Port', 4196);
-                    IPS_SetProperty($ParentId, 'Open', true);
+                    IPS_SetProperty($ParentId, 'Open', $Active);
                     @IPS_ApplyChanges($ParentId);
                 }
                 @IPS_ConnectInstance($this->InstanceID, $ParentId);
@@ -102,9 +104,10 @@ class GHomaPlug extends IPSModule
             $this->ParentID = $ParentId;
         }
         $this->RegisterTimer('HeartbeatTimeout', 0, 'IPS_RequestAction(' . $this->InstanceID . ',"HeartbeatTimeout",true);');
+        $this->RegisterPropertyString('Active', $Active);
         $this->RegisterPropertyString('Host', $DeviceIP);
         $this->BufferIN = '';
-        $this->ConnectState = \GHoma\GHConnectState::UNKNOWN;
+        $this->ConnectState = \GHoma\GHConnectState::INACTIVE;
         $this->FullMac = '';
         $this->Port = 0;
     }
@@ -125,6 +128,7 @@ class GHomaPlug extends IPSModule
         $this->RegisterMessage(0, IPS_KERNELSTARTED);
         $this->RegisterMessage($this->InstanceID, FM_CONNECT);
         $this->RegisterMessage($this->InstanceID, FM_DISCONNECT);
+        $this->SetTimerInterval('HeartbeatTimeout', 0);
 
         $this->BufferIN = '';
         $this->ConnectState = \GHoma\GHConnectState::UNKNOWN;
@@ -149,9 +153,7 @@ class GHomaPlug extends IPSModule
         if (IPS_GetKernelRunlevel() != KR_READY) {
             return;
         }
-
         $this->RegisterParent();
-
         // Wenn Parent aktiv, dann Anmeldung an der Hardware bzw. Datenabgleich starten
         if ($this->HasActiveParent()) {
             $this->IOChangeState(IS_ACTIVE);
@@ -322,6 +324,11 @@ class GHomaPlug extends IPSModule
      */
     protected function IOChangeState(int $State): void
     {
+        if ($this->ReadPropertyBoolean('Active') == false) {
+            $this->ConnectState = \GHoma\GHConnectState::INACTIVE;
+            $this->SetStatus(IS_INACTIVE);
+            return;
+        }
         $this->ConnectState = \GHoma\GHConnectState::UNKNOWN;
         if ($State == IS_ACTIVE) { // Wenn der IO Aktiv wurde
             if (trim($this->IP) == '') {

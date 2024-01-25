@@ -24,6 +24,7 @@ eval('declare(strict_types=1);namespace GHoma {?>' . file_get_contents(__DIR__ .
 
 class GHConnectState
 {
+    public const INACTIVE = -1;
     public const UNKNOWN = 0;
     public const CONNECTED = 1;
 }

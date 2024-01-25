@@ -1,6 +1,7 @@
 {
     "translations": {
         "de": {
+            "Active": "Aktiv",
             "IP-Address": "IP-Adresse",
             "Device not connected": "Gerät nicht verbunden",
             "Device not response": "Gerät antwortet nicht",
