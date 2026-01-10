@@ -11,6 +11,7 @@ declare(strict_types=1);
  * @version       7.0
  */
 eval('declare(strict_types=1);namespace GHomaDiscovery {?>' . file_get_contents(dirname(__DIR__) . '/libs/helper/DebugHelper.php') . '}');
+require_once __DIR__ . '/../libs/GHomaTraits.php';  // diverse Klassen
 
 /**
  * GHomaDiscovery ist die Klasse für eine Discovery-Instanz in IPS für die WLAN Steckdosen der Firma G-Homa.
