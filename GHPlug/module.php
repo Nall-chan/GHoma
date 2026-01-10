@@ -51,10 +51,10 @@ class GHomaPlug extends IPSModuleStrict
     public function Create(): void
     {
         parent::Create();
-        $DeviceIP = '';
         $this->ParentID = 0;
         $this->RegisterTimer(\GHoma\Device\Timer::HeartbeatTimeout, 0, 'IPS_RequestAction(' . $this->InstanceID . ',"' . \GHoma\Device\Timer::HeartbeatTimeout . '",true);');
-        $this->RegisterPropertyString(\GHoma\Device\Property::Host, $DeviceIP);
+        $this->RegisterPropertyString(\GHoma\Device\Property::Host, '');
+        $this->IP = '';
         $this->BufferIN = '';
         $this->FullMac = '';
         $this->Port = 0;
@@ -68,7 +68,7 @@ class GHomaPlug extends IPSModuleStrict
     public function GetCompatibleParents(): string
     {
         return json_encode([
-            'type'     => 'require',
+            'type'     => 'connect',
             'moduleIDs'=> [
                 \GHoma\GUID::ServerSocket
             ]
