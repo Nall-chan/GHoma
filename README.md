@@ -14,8 +14,8 @@ von WLAN-Steckdosen vom Hersteller G-Homa.
 ## Inhaltsverzeichnis  <!-- omit in toc -->
 
 - [1. Funktionsumfang](#1-funktionsumfang)
-  - [G-Homa Plug:](#g-homa-plug)
-  - [G-Homa Discovery:](#g-homa-discovery)
+  - [G-Homa Plug](#g-homa-plug)
+  - [G-Homa Discovery](#g-homa-discovery)
 - [2. Voraussetzungen](#2-voraussetzungen)
 - [3. Software-Installation](#3-software-installation)
 - [4. Einrichten der Instanzen in IP-Symcon](#4-einrichten-der-instanzen-in-ip-symcon)
@@ -28,12 +28,12 @@ von WLAN-Steckdosen vom Hersteller G-Homa.
 
 ## 1. Funktionsumfang
 
-### [G-Homa Plug:](GHPlug/)  
+### [G-Homa Plug](GHPlug/)  
 
 - Steuern des Schaltzustands.  
 - Empfangen und Darstellen des Schaltzustands, sowie der Energiemessung.  
 
-### [G-Homa Discovery:](GHDiscovery/)  
+### [G-Homa Discovery](GHDiscovery/)  
 
 - Auflisten alle im Netzwerk verfügbaren Geräte.  
 - Erstellen von neuen `G-Homa Plug`-Instanzen in Symcon.  
@@ -73,7 +73,7 @@ Alternativ ist es auch über folgenden Ablauf mit Symcon möglich:
 - Anschließend ist die Instanz [G-Homa Discovery](GHDiscovery/README.md#geräte-für-symcon-konfigurieren) zu öffnen. Wird kein Gerät angezeigt, so ist der Button `aktualisieren` zu betätigen.  
 - Das neu gefundene Gerät ist in der Liste des auszuwählen.  
 - Anschließend muss über den Button `Ausgewähltes Gerät konfigurieren` die WLAN Konfiguration eingetragen werden und abschließen mit dem Button `Schreibe WLAN` an das Gerät übertragen werden.  
-- Weitere Konfiguration siehe im [G-Homa Discovery:](GHDiscovery/README.md#geräte-im-netzwerk-auffinden)  
+- Weitere Konfiguration siehe im [G-Homa Discovery](GHDiscovery/README.md#geräte-im-netzwerk-auffinden)  
 
 ## 5. Anhang
 
