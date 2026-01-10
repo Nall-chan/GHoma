@@ -2,9 +2,6 @@
 
 declare(strict_types=1);
 /**
- * @addtogroup ghoma
- * @{
- *
  * @file          module.php
  *
  * @author        Michael Tröger <micha@nall-chan.net>
@@ -32,6 +29,7 @@ class GHomaDiscovery extends IPSModuleStrict
     public const DISCOVERY_PORT = 48899;
     public const DISCOVERY_MSG = 'HF-A11ASSISTHREAD';
     public const DISCOVERY_ADDRESS = '255.255.255.255';
+
     /**
      * Ein UDP-Socket.
      *
@@ -40,7 +38,9 @@ class GHomaDiscovery extends IPSModuleStrict
     private $UDPSocket = false;
 
     /**
-     * Interne Funktion des SDK.
+     * __destruct
+     *
+     * @return void
      */
     public function __destruct()
     {
@@ -49,6 +49,13 @@ class GHomaDiscovery extends IPSModuleStrict
         }
     }
 
+    /**
+     * RequestAction
+     *
+     * @param  string $Ident
+     * @param  mixed $Value
+     * @return void
+     */
     public function RequestAction(string $Ident, mixed $Value): void
     {
         switch ($Ident) {
@@ -84,8 +91,11 @@ class GHomaDiscovery extends IPSModuleStrict
                 break;
         }
     }
+
     /**
-     * Interne Funktion des SDK.
+     * GetConfigurationForm
+     *
+     * @return string
      */
     public function GetConfigurationForm(): string
     {
@@ -96,7 +106,7 @@ class GHomaDiscovery extends IPSModuleStrict
         $Devices = $this->Discover();
         ksort($Devices);
         $DeviceValues = [];
-        $InstanceIDListe = $this->GetInstanceList('{5F0CF4B0-7395-4ABF-B10F-AA0109A0F016}', 'Host');
+        $InstanceIDListe = $this->GetInstanceList(\GHoma\GUID::Device, 'Host');
         foreach ($Devices as $IPAddress => $Data) {
             $InstanceIdDevice = array_search($IPAddress, $InstanceIDListe);
             if ($InstanceIdDevice) {
@@ -107,18 +117,17 @@ class GHomaDiscovery extends IPSModuleStrict
                 'IPAddress'              => $Data[0],
                 'MAC'                    => $Data[1],
                 'Model'                  => $Data[2],
-                'name'                   => ($InstanceIdDevice ? IPS_GetName($InstanceIdDevice) : 'G-Home Plug - ' . $IPAddress)
+                'name'                   => ($InstanceIdDevice ? IPS_GetName($InstanceIdDevice) : 'G-Homa Plug - ' . $IPAddress)
             ];
             $AddDevice['create'] = [
                 [
-                    'moduleID'      => '{5F0CF4B0-7395-4ABF-B10F-AA0109A0F016}',
-                    'location'      => [$this->Translate('G-Homa Devices')],
+                    'moduleID'      => \GHoma\GUID::Device,
                     'configuration' => [
                         'Host'=> $IPAddress
                     ]
                 ],
                 [
-                    'moduleID'      => '{8062CF2B-600E-41D6-AD4B-1BA66C32D6ED}',
+                    'moduleID'      => GHoma\GUID::ServerSocket,
                     'configuration' => [
                         'Port' => 4196,
                         'Open' => true
@@ -143,17 +152,39 @@ class GHomaDiscovery extends IPSModuleStrict
         return json_encode($Form);
     }
 
+    /**
+     * ConfigResultHandler
+     *
+     * @param  int $errno
+     * @param  string $errstr
+     * @return bool
+     */
     protected function ConfigResultHandler(int $errno, string $errstr): bool
     {
         echo $errstr . "\r\n";
         return true;
     }
 
+    /**
+     * GetConfigParam
+     *
+     * @param  mixed $item1
+     * @param  int $InstanceID
+     * @param  string $ConfigParam
+     * @return void
+     */
     protected function GetConfigParam(&$item1, int $InstanceID, string $ConfigParam): void
     {
         $item1 = IPS_GetProperty($InstanceID, $ConfigParam);
     }
 
+    /**
+     * GetInstanceList
+     *
+     * @param  string $GUID
+     * @param  string $ConfigParam
+     * @return array
+     */
     private function GetInstanceList(string $GUID, string $ConfigParam): array
     {
         $InstanceIDList = IPS_GetInstanceListByModuleID($GUID);
@@ -162,6 +193,12 @@ class GHomaDiscovery extends IPSModuleStrict
         $this->SendDebug('Filter', $InstanceIDList, 0);
         return $InstanceIDList;
     }
+
+    /**
+     * Discover
+     *
+     * @return array
+     */
     private function Discover(): array
     {
         $DevicesData = [];
@@ -212,6 +249,12 @@ class GHomaDiscovery extends IPSModuleStrict
         return $DevicesData;
     }
 
+    /**
+     * DisplayDeviceConfigForm
+     *
+     * @param  mixed $Host
+     * @return void
+     */
     private function DisplayDeviceConfigForm(?string $Host): void
     {
         if ($Host) {
@@ -323,7 +366,7 @@ class GHomaDiscovery extends IPSModuleStrict
                             '$Data[]= "4196";',
                             '$Data[]= ($ServerIP == "manual" ? $ManualIP : $ServerIP);',
                             'if(IPS_RequestAction($id, \'WriteDevice\', json_encode($Data))){',
-                            'IPS_RequestAction($id, \'DeviceConfigOpen\', "' . $Host . '");',
+                            '    echo \'' . $this->Translate('Device successfully paired') . '\';',
                             '}',
                         ]
                     ]
@@ -370,7 +413,9 @@ class GHomaDiscovery extends IPSModuleStrict
                                     '$Data[]= $NTP;',
                                     '$Result & IPS_RequestAction($id, \'WriteDevice\', json_encode($Data));',
                                     'if ($Result){',
-                                    'IPS_RequestAction($id, "SendDeviceReset", "' . $Host . '");',
+                                    '    if (IPS_RequestAction($id, \'SendDeviceReset\', \'' . $Host . '\')){',
+                                    '    echo \'' . $this->Translate('Device will restart') . '\';',
+                                    '    }',
                                     '}'
                                 ]
                             ]
@@ -504,7 +549,13 @@ class GHomaDiscovery extends IPSModuleStrict
         $this->UpdateFormField('CurrentConfig', 'items', json_encode($CurrentConfig));
     }
 
-    private function GetDeviceData(string $Host): false|array
+    /**
+     * GetDeviceData
+     *
+     * @param  string $Host
+     * @return false
+     */
+    private function GetDeviceData(string $Host): bool|array
     {
         $DeviceData = $this->DeviceLogin($Host);
         if ($DeviceData == false) {
@@ -539,13 +590,20 @@ class GHomaDiscovery extends IPSModuleStrict
             $ResultNTP = $this->ReadDeviceData($Host, 'NTPSER');
             $DeviceData['NTP'] = $ResultNTP[0];
             $this->SendDebug('GetData' . $Host, $DeviceData, 0);
-        } catch (\Throwable $th) {
+        } catch (\Exception $th) {
             return false;
         }
         return $DeviceData;
     }
 
-    private function ReadDeviceData(string $Host, string $Key): false|array
+    /**
+     * ReadDeviceData
+     *
+     * @param  string $Host
+     * @param  string $Key
+     * @return bool|array
+     */
+    private function ReadDeviceData(string $Host, string $Key): bool|array
     {
         if ($this->UDPSocket == false) {
             if ($this->DeviceLogin($Host) == false) {
@@ -561,6 +619,14 @@ class GHomaDiscovery extends IPSModuleStrict
         return false;
     }
 
+    /**
+     * WriteDeviceData
+     *
+     * @param  string $Host
+     * @param  string $Key
+     * @param  array $Values
+     * @return bool|array
+     */
     private function WriteDeviceData(string $Host, string $Key, array $Values): bool|array
     {
         if ($this->UDPSocket == false) {
@@ -580,6 +646,12 @@ class GHomaDiscovery extends IPSModuleStrict
         return explode(',', $Data);
     }
 
+    /**
+     * SendDeviceReset
+     *
+     * @param  string $Host
+     * @return bool
+     */
     private function SendDeviceReset(string $Host): bool
     {
         if ($this->UDPSocket == false) {
@@ -592,7 +664,13 @@ class GHomaDiscovery extends IPSModuleStrict
         return true;
     }
 
-    private function DeviceLogin(string $Host): false|array
+    /**
+     * DeviceLogin
+     *
+     * @param  string $Host
+     * @return bool|array
+     */
+    private function DeviceLogin(string $Host): bool|array
     {
         $this->SendDebug('Login:' . $Host, '', 0);
         $this->UDPSocket = fsockopen('udp://' . $Host, 48899, $errno, $errstr, 2);
@@ -617,6 +695,11 @@ class GHomaDiscovery extends IPSModuleStrict
         return $DeviceData;
     }
 
+    /**
+     * ReadAnswer
+     *
+     * @return bool|array
+     */
     private function ReadAnswer(): bool|string
     {
         $Line = stream_get_line($this->UDPSocket, 3000, "\r\n\r\n");
@@ -636,5 +719,3 @@ class GHomaDiscovery extends IPSModuleStrict
         return $Data;
     }
 }
-
-/* @} */

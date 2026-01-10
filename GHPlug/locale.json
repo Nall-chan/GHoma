@@ -1,20 +1,23 @@
 {
     "translations": {
         "de": {
+            "G-Homa Plug": "G-Homa Steckdose",
             "IP-Address": "IP-Adresse",
             "Device not connected": "Gerät nicht verbunden",
             "Device not response": "Gerät antwortet nicht",
+            "Device send no heartbeat": "Gerät hat kein Lebenszeichen gesendet",
             "Device is disconnected from Symcon": "Gerät hat sich von Symcon getrennt",
             "Device will connect to Symcon": "Gerät hat sich mit Symcon verbunden",
             "Invalid Ident": "Ungültiger Ident",
             "Instance has no active Parent.": "Instanz hat keinen aktiven Parent.",
-            "STATE": "STATUS",
+            "State": "Status",
+            "Alert": "Alarm",
             "Power": "Leistung",
             "Consumption": "Verbrauch",
             "Voltage": "Spannung",
             "Current": "Strom",
             "Output": "Scheinleistung",
-            "Powerfactor": "Leistungsfaktor",
+            "Power factor": "Leistungsfaktor",
             "This module is free for non-commercial use,\r\nDonations in support of the author are accepted here:": "Dieses Modul ist für die nicht kommerzielle Nutzung kostenlos,\r\nSchenkungen als Unterstützung für den Autor werden hier akzeptiert:"
         }
     }

@@ -2,9 +2,6 @@
 
 declare(strict_types=1);
 /**
- * @addtogroup ghoma
- * @{
- *
  * @file          module.php
  *
  * @author        Michael Tröger <micha@nall-chan.net>
@@ -21,7 +18,6 @@ require_once __DIR__ . '/../libs/GHomaTraits.php';  // diverse Klassen
  *
  * @property int $ParentID
  * @property string $BufferIN Receive RAW Buffer.
- * @property \GHoma\GHConnectState $ConnectState Status.
  * @property string $FullMac MAC
  * @property string $ShortMac MAC
  * @property string $TriggerCode
@@ -30,13 +26,14 @@ require_once __DIR__ . '/../libs/GHomaTraits.php';  // diverse Klassen
  * @property bool $InternState
  *
  * @method void RegisterParent()
- * @method void RegisterProfileFloat(string $Name, string $Icon, string $Prefix, string $Suffix, float $MinValue, float $MaxValue, float $StepSize, int $Digits)
- * @method void UnregisterProfile()
+ * @method void UnregisterProfile(string $Profile)
  * @method void SetValueBoolean(string $Ident, bool $value)
  * @method void SetValueFloat(string $Ident, float $value)
  * @method void SetValueInteger(string $Ident, int $value)
  * @method void SetValueString(string $Ident, string $value)
  * @method bool SendDebug(string $Message, mixed $Data, int $Format)
+ * @method bool IORequestAction(string $Ident, mixed $Value)
+ * @method void IOMessageSink(int $TimeStamp, int $SenderID, int $Message, array $Data)
  */
 class GHomaPlug extends IPSModuleStrict
 {
@@ -54,96 +51,130 @@ class GHomaPlug extends IPSModuleStrict
     public function Create(): void
     {
         parent::Create();
-        // $this->RequireParent("{3CFF0FD9-E306-41DB-9B5A-9D06D38576C3}");
-        // Funktioniert nicht, alle Devices sollen an einem
-        // ServerSocket hängen, welcher auf Port 4196 empfängt.
         $DeviceIP = '';
         $this->ParentID = 0;
-        // Beim Update des Module -> Symcon läuft
-        if (IPS_GetKernelRunlevel() == KR_READY) {
-            $ParentId = IPS_GetInstance($this->InstanceID)['ConnectionID'];
-            if ($ParentId > 0) {
-                // Konverter für alte Instanzen, welche ClientSockets als Parent nutzten.
-                if (IPS_GetInstance($ParentId)['ModuleInfo']['ModuleID'] != '{8062CF2B-600E-41D6-AD4B-1BA66C32D6ED}') {
-                    $DeviceIP = IPS_GetProperty($ParentId, 'Host');
-                    @IPS_DisconnectInstance($this->InstanceID);
-                    $deleteCS = true;
-                    foreach (IPS_GetInstanceList() as $Instance) {
-                        if (IPS_GetInstance($Instance)['ConnectionID'] == $ParentId) {
-                            // Wenn noch eine Instanz mit dem ClientSocket verbunden ist; nicht löschen.
-                            $deleteCS = false;
-                        }
-                    }
-                    if ($deleteCS) {
-                        @IPS_DeleteInstance($ParentId);
-                    }
-                    $ParentId = 0;
-                }
-            }
-            if ($ParentId == 0) {
-                // passenden ServerSocket mir Port suchen
-                foreach (IPS_GetInstanceListByModuleID('{8062CF2B-600E-41D6-AD4B-1BA66C32D6ED}') as $Instance) {
-                    if (IPS_GetProperty($Instance, 'Port') == 4196) {
-                        // gefunden
-                        $ParentId = $Instance;
-                        break;
-                    }
-                }
-                if ($ParentId == 0) {
-                    // nicht gefunden
-                    $ParentId = @IPS_CreateInstance('{8062CF2B-600E-41D6-AD4B-1BA66C32D6ED}');
-                    IPS_SetName($ParentId, 'Server Socket (GHoma)');
-                    IPS_SetProperty($ParentId, 'Port', 4196);
-                    IPS_SetProperty($ParentId, 'Open', true);
-                    @IPS_ApplyChanges($ParentId);
-                }
-                @IPS_ConnectInstance($this->InstanceID, $ParentId);
-            }
-            $this->ParentID = $ParentId;
-        }
-        $this->RegisterTimer('HeartbeatTimeout', 0, 'IPS_RequestAction(' . $this->InstanceID . ',"HeartbeatTimeout",true);');
-        $this->RegisterPropertyString('Host', $DeviceIP);
+        $this->RegisterTimer(\GHoma\Device\Timer::HeartbeatTimeout, 0, 'IPS_RequestAction(' . $this->InstanceID . ',"' . \GHoma\Device\Timer::HeartbeatTimeout . '",true);');
+        $this->RegisterPropertyString(\GHoma\Device\Property::Host, $DeviceIP);
         $this->BufferIN = '';
-        $this->ConnectState = \GHoma\GHConnectState::UNKNOWN;
         $this->FullMac = '';
         $this->Port = 0;
     }
 
-    public function Destroy(): void
+    /**
+     * GetCompatibleParents
+     *
+     * @return string
+     */
+    public function GetCompatibleParents(): string
     {
-        if (!IPS_InstanceExists($this->InstanceID)) {
-            $this->UnregisterProfile('GHoma.VA');
+        return json_encode([
+            'type'     => 'require',
+            'moduleIDs'=> [
+                \GHoma\GUID::ServerSocket
+            ]
+        ]);
+    }
+
+    /**
+     * Migrate
+     * @param  string $JSONData
+     * @return string
+     */
+    public function Migrate(string $JSONData): string
+    {
+        $Data = json_decode($JSONData);
+        if (!property_exists($Data->configuration, \GHoma\Device\Property::Host)) {
+            $Data->configuration->Host = '';
+            // Instanz ohne Eigenschaft Host waren noch per ClientSocket angebunden.
+            if (IPS_GetKernelRunlevel() == KR_READY) {
+                $ParentId = IPS_GetInstance($this->InstanceID)['ConnectionID'];
+                if ($ParentId > 0) {
+                    // Konverter für alte Instanzen, welche ClientSockets als Parent nutzten.
+                    if (IPS_GetInstance($ParentId)['ModuleInfo']['ModuleID'] != \GHoma\GUID::ServerSocket) {
+                        // IP vom CS in unsere Config übernehmen
+                        $Data->configuration->Host = IPS_GetProperty($ParentId, \GHoma\Device\Property::Host);
+                        // Status merken
+                        $Open = IPS_GetProperty($ParentId, 'Open');
+                        //Trennen und
+                        @IPS_DisconnectInstance($this->InstanceID);
+                        $deleteCS = true;
+                        foreach (IPS_GetInstanceList() as $Instance) {
+                            if (IPS_GetInstance($Instance)['ConnectionID'] == $ParentId) {
+                                // Wenn noch eine Instanz mit dem ClientSocket verbunden ist; nicht löschen.
+                                $deleteCS = false;
+                            }
+                        }
+                        if ($deleteCS) {
+                            // löschen
+                            @IPS_DeleteInstance($ParentId);
+                        }
+                        // passenden ServerSocket mit Port suchen
+                        $ParentId == 0;
+                        foreach (IPS_GetInstanceListByModuleID(\GHoma\GUID::ServerSocket) as $Instance) {
+                            if (IPS_GetProperty($Instance, 'Port') == 4196) {
+                                // gefunden
+                                $ParentId = $Instance;
+                                break;
+                            }
+                        }
+                        if ($ParentId == 0) {
+                            // nicht gefunden, neu erstellen
+                            $ParentId = @IPS_CreateInstance(\GHoma\GUID::ServerSocket);
+                            IPS_SetName($ParentId, 'Server Socket (GHoma)');
+                            IPS_SetProperty($ParentId, 'Port', 4196);
+                            if ($Open) {
+                                IPS_SetProperty($ParentId, 'Open', true);
+                            }
+                            @IPS_ApplyChanges($ParentId);
+                        }
+                        // Verbinden mit gefundenen oder neu erstellten Parent
+                        @IPS_ConnectInstance($this->InstanceID, $ParentId);
+                    }
+                }
+            }
         }
-        //Never delete this line!
-        parent::Destroy();
+        return json_encode($Data);
     }
     /**
-     * Interne Funktion des SDK.
+     * ApplyChanges
+     *
+     * @return void
      */
     public function ApplyChanges(): void
     {
         $this->RegisterMessage(0, IPS_KERNELSTARTED);
         $this->RegisterMessage($this->InstanceID, FM_CONNECT);
         $this->RegisterMessage($this->InstanceID, FM_DISCONNECT);
-
+        $this->SetTimerInterval(\GHoma\Device\Timer::HeartbeatTimeout, 0);
         $this->BufferIN = '';
-        $this->ConnectState = \GHoma\GHConnectState::UNKNOWN;
         $this->FullMac = '';
         if ($this->Port > 0) {
             $this->SendDisconnect();
         }
 
-        $this->RegisterVariableBoolean('STATE', 'STATE', '~Switch', 1);
+        $this->RegisterVariableBoolean(
+            'STATE',
+            $this->Translate('State'),
+            [
+                'PRESENTATION' => VARIABLE_PRESENTATION_SWITCH
+            ],
+            1
+        );
         $this->EnableAction('STATE');
-        $this->RegisterVariableBoolean('BUTTON', 'BUTTON', '', 2);
-        $this->SetReceiveDataFilter('.*"ClientIP":"' . $this->ReadPropertyString('Host') . '".*');
+        $this->RegisterVariableBoolean(
+            'BUTTON',
+            'Button',
+            [],
+            2
+        );
+        $this->SetReceiveDataFilter('.*"ClientIP":"' . $this->ReadPropertyString(\GHoma\Device\Property::Host) . '".*');
 
         parent::ApplyChanges();
 
         // Anzeige IP in der INFO Spalte
-        $this->SetSummary($this->ReadPropertyString('Host'));
-        $this->IP = $this->ReadPropertyString('Host');
-        $this->RegisterProfileFloat('GHoma.VA', '', '', ' VA', 0, 0, 0, 2);
+        $this->SetSummary($this->ReadPropertyString(\GHoma\Device\Property::Host));
+        $this->IP = $this->ReadPropertyString(\GHoma\Device\Property::Host);
+        $this->UnregisterProfile('GHoma.VA');
 
         // Wenn Kernel nicht bereit, dann warten... KR_READY kommt ja gleich
         if (IPS_GetKernelRunlevel() != KR_READY) {
@@ -159,14 +190,17 @@ class GHomaPlug extends IPSModuleStrict
             $this->IOChangeState(IS_INACTIVE);
         }
     }
+
     /**
-     * Interne Funktion des SDK.
+     * MessageSink
+     *
      * Verarbeitet alle Nachrichten auf die wir uns registriert haben.
      *
      * @param int       $TimeStamp
      * @param int       $SenderID
      * @param int       $Message
-     * @param array|int $Data
+     * @param array $Data
+     * @return void
      */
     public function MessageSink(int $TimeStamp, int $SenderID, int $Message, array $Data): void
     {
@@ -185,7 +219,9 @@ class GHomaPlug extends IPSModuleStrict
     }
 
     /**
-     * Interne Funktion des SDK.
+     * GetConfigurationForParent
+     *
+     * @return string
      */
     public function GetConfigurationForParent(): string
     {
@@ -193,8 +229,9 @@ class GHomaPlug extends IPSModuleStrict
         return json_encode($Config);
     }
 
-    //################# PUBLIC
     /**
+     * SendSwitch
+     *
      * IPS-Instanz Funktion GHOMA_SendSwitch.
      * Schaltet den Aktor ein oder aus.
      *
@@ -204,8 +241,10 @@ class GHomaPlug extends IPSModuleStrict
      */
     public function SendSwitch(bool $State): bool
     {
-        if ($this->ConnectState != \GHoma\GHConnectState::CONNECTED) {
+        if ($this->GetStatus() != IS_ACTIVE) {
+            set_error_handler([$this, 'ModulErrorHandler']);
             trigger_error($this->Translate('Device not connected'), E_USER_WARNING);
+            restore_error_handler();
             return false;
         }
         $Message = new \GHoma\GHMessage(
@@ -220,14 +259,19 @@ class GHomaPlug extends IPSModuleStrict
 
         $Result = $this->WaitForSwitch($State);
         if (!$Result) {
+            set_error_handler([$this, 'ModulErrorHandler']);
             trigger_error($this->Translate('Device not response'), E_USER_WARNING);
+            restore_error_handler();
         }
         return $Result;
     }
 
-    //################# ActionHandler
     /**
-     * Interne Funktion des SDK.
+     * RequestAction
+     *
+     * @param  string $Ident
+     * @param  mixed $Value
+     * @return void
      */
     public function RequestAction(string $Ident, mixed $Value): void
     {
@@ -238,11 +282,10 @@ class GHomaPlug extends IPSModuleStrict
             case 'STATE':
                 $this->SendSwitch((bool) $Value);
                 break;
-            case 'HeartbeatTimeout':
-                $this->ConnectState = \GHoma\GHConnectState::UNKNOWN;
-                $this->SendDebug('Error', 'HeartbeatTimeout', 0);
-                $this->LogMessage($this->Translate('Device is disconnected from Symcon'), KL_WARNING);
-                $this->SetTimerInterval('HeartbeatTimeout', 0);
+            case \GHoma\Device\Timer::HeartbeatTimeout:
+                $this->SendDebug('Error', \GHoma\Device\Timer::HeartbeatTimeout, 0);
+                $this->LogMessage($this->Translate('Device send no heartbeat') . ':' . $this->ReadPropertyString(\GHoma\Device\Property::Host), KL_WARNING);
+                $this->SetTimerInterval(\GHoma\Device\Timer::HeartbeatTimeout, 0);
                 $this->SendDisconnect();
                 $this->SetStatus(IS_EBASE + 3);
                 break;
@@ -252,9 +295,11 @@ class GHomaPlug extends IPSModuleStrict
         }
     }
 
-    //################# DATAPOINTS
     /**
-     * Interne Funktion des SDK.
+     * ReceiveData
+     *
+     * @param  string $JSONString
+     * @return string
      */
     public function ReceiveData(string $JSONString): string
     {
@@ -264,14 +309,13 @@ class GHomaPlug extends IPSModuleStrict
             case 1: /* Connected */
                 $this->Port = $data->ClientPort;
                 $this->SendDebug('Connected', 'Port:' . $data->ClientPort, 0);
-                $this->LogMessage($this->Translate('Device will connect to Symcon'), KL_NOTIFY);
+                $this->LogMessage($this->Translate('Device will connect to Symcon') . ':' . $this->ReadPropertyString(\GHoma\Device\Property::Host), KL_NOTIFY);
                 $this->SendInit();
                 return '';
             case 2: /* Disconnected */
-                $this->ConnectState = \GHoma\GHConnectState::UNKNOWN;
                 $this->SendDebug('Error', 'Disconnect Port:' . $data->ClientPort, 0);
-                $this->LogMessage($this->Translate('Device is disconnected from Symcon'), KL_WARNING);
-                $this->SetTimerInterval('HeartbeatTimeout', 0);
+                $this->LogMessage($this->Translate('Device is disconnected from Symcon') . ':' . $this->ReadPropertyString(\GHoma\Device\Property::Host), KL_WARNING);
+                $this->SetTimerInterval(\GHoma\Device\Timer::HeartbeatTimeout, 0);
                 $this->SetStatus(IS_EBASE + 3);
                 return '';
         }
@@ -308,13 +352,16 @@ class GHomaPlug extends IPSModuleStrict
                 continue;
             }
             $GHMessage = new \GHoma\GHMessage(ord($Payload[0]), substr($Payload, 1));
-            $this->SendDebug('Receive', $GHMessage, 1);
+            $this->SendDebug('Receive Command', $GHMessage->Command, 0);
+            $this->SendDebug('Receive Payload', $GHMessage->Payload, 1);
             $this->Decode($GHMessage);
         }
         return '';
     }
 
     /**
+     * IOChangeState
+     *
      * Wird über den Trait InstanceStatus ausgeführt wenn sich der Status des Parent ändert.
      * Oder wenn sich die Zuordnung zum Parent ändert.
      *
@@ -322,30 +369,36 @@ class GHomaPlug extends IPSModuleStrict
      */
     protected function IOChangeState(int $State): void
     {
-        $this->ConnectState = \GHoma\GHConnectState::UNKNOWN;
         if ($State == IS_ACTIVE) { // Wenn der IO Aktiv wurde
             if (trim($this->IP) == '') {
                 $this->SetStatus(IS_INACTIVE);
-                $this->SetTimerInterval('HeartbeatTimeout', 0);
+                $this->SetTimerInterval(\GHoma\Device\Timer::HeartbeatTimeout, 0);
             } else {
                 // Watchdog Timer für Reconnect
-                $this->SendDebug('IO opend', 'ready to connect from device', 0);
-                $this->SetTimerInterval('HeartbeatTimeout', 44 * 1000);
+                $this->SendDebug('IO active', 'ready to connect from device', 0);
+                $this->SetTimerInterval(\GHoma\Device\Timer::HeartbeatTimeout, 60 * 1000);
             }
         } else { // wenn IO inaktiv
             $this->SetStatus(IS_INACTIVE);
-            $this->SendDebug('IO NOT opend', 'no connection possible', 0);
-            $this->SetTimerInterval('HeartbeatTimeout', 0);
+            $this->SendDebug('IO NOT active', 'no connection possible', 0);
+            $this->SetTimerInterval(\GHoma\Device\Timer::HeartbeatTimeout, 0);
         }
     }
-    //################# PRIVATE
+
+    /**
+     * Send
+     *
+     * @param  \GHoma\GHMessage $Message
+     * @return void
+     */
     private function Send(\GHoma\GHMessage $Message): void
     {
-        $this->SendDebug('Send', $Message, 1);
+        $this->SendDebug('Send Command', $Message->Command, 0);
+        $this->SendDebug('Send Payload', $Message->Payload, 1);
         $this->SendDataToParent(
             json_encode(
                 [
-                    'DataID'     => '{C8792760-65CF-4C53-B5C7-A30FCC84FEFE}',
+                    'DataID'     => \GHoma\GUID::SendToSocket,
                     'ClientIP'   => $this->IP,
                     'ClientPort' => $this->Port,
                     'Type'       => 0,
@@ -356,13 +409,19 @@ class GHomaPlug extends IPSModuleStrict
             )
         );
     }
+
+    /**
+     * SendDisconnect
+     *
+     * @return void
+     */
     private function SendDisconnect(): void
     {
         $this->SendDebug('Send Disconnect', '', 0);
         @$this->SendDataToParent(
             json_encode(
                 [
-                    'DataID'     => '{C8792760-65CF-4C53-B5C7-A30FCC84FEFE}',
+                    'DataID'     => GHoma\GUID::SendToSocket,
                     'ClientIP'   => $this->IP,
                     'ClientPort' => $this->Port,
                     'Type'       => 2,
@@ -373,15 +432,16 @@ class GHomaPlug extends IPSModuleStrict
     }
 
     /**
+     * SendInit
+     *
      * Sendet die Initialisierung an den Controller und prüft die Rückmeldung.
      *
      * @throws Exception Wenn kein aktiver Parent verbunden ist.
      *
-     * @return bool True bei Erfolg, sonst false.
+     * @return void
      */
     private function SendInit(): void
     {
-        $this->ConnectState = \GHoma\GHConnectState::UNKNOWN;
         $Message = new \GHoma\GHMessage(
             \GHoma\GHMessage::CMD_INIT1,
             \GHoma\GHMessage::INIT1
@@ -390,6 +450,8 @@ class GHomaPlug extends IPSModuleStrict
     }
 
     /**
+     * WaitForSwitch
+     *
      * Warte auf eine Änderung der internen Statusvariable 'STATE'.
      *
      * @param bool $State Der Status auf welchen gewartet wird.
@@ -408,17 +470,19 @@ class GHomaPlug extends IPSModuleStrict
         return false;
     }
 
+    /**
+     * Decode
+     *
+     * @param  \GHoma\GHMessage $Message
+     * @return void
+     */
     private function Decode(\GHoma\GHMessage $Message): void
     {
-        $this->SetTimerInterval('HeartbeatTimeout', 0);
+        $this->SetTimerInterval(\GHoma\Device\Timer::HeartbeatTimeout, 0);
         switch ($Message->Command) {
             case \GHoma\GHMessage::CMD_HEARTBEAT:
                 $this->ShortMac = substr($Message->Payload, 5, 3);
                 $this->TriggerCode = substr($Message->Payload, 3, 2);
-                /* if ($this->ConnectState != \GHoma\GHConnectState::CONNECTED) {
-                     $this->SetStatus(IS_ACTIVE);
-                     $this->ConnectState = \GHoma\GHConnectState::CONNECTED;
-                 }*/
                 $Message = new \GHoma\GHMessage(\GHoma\GHMessage::CMD_HEARTBEATREPLY, '');
                 $this->Send($Message);
                 break;
@@ -431,15 +495,12 @@ class GHomaPlug extends IPSModuleStrict
                 );
                 $this->Send($Message);
                 break;
-
             case \GHoma\GHMessage::CMD_INIT2REPLY:
                 if ($Message->Payload[9] == chr(1)) {
                     $this->FullMac = substr($Message->Payload, 11, 6);
                 }
                 $this->SetStatus(IS_ACTIVE);
-                $this->ConnectState = \GHoma\GHConnectState::CONNECTED;
                 break;
-
             case \GHoma\GHMessage::CMD_STATUS:
                 /*
                   Bytes               0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20
@@ -461,7 +522,44 @@ class GHomaPlug extends IPSModuleStrict
                         $this->SetValueBoolean('BUTTON', ($Message->Payload[11] === chr(0x81)));
                         break;
                     case 0x31:
-                        $this->RegisterVariableBoolean('ALARM', 'ALARM', '~Alert');
+                        $this->RegisterVariableBoolean(
+                            'ALARM',
+                            $this->Translate('Alert'),
+                            [
+                                'MIN'              => 0,
+                                'DIGITS'           => 0,
+                                'MULTILINE'        => false,
+                                'ICON'             => 'Warning',
+                                'INTERVALS_ACTIVE' => true,
+                                'MAX'              => 1,
+                                'PRESENTATION'     => VARIABLE_PRESENTATION_VALUE_PRESENTATION,
+                                'PERCENTAGE'       => false,
+                                'OPTIONS'          => json_encode(
+                                    [
+                                        [
+                                            'Value'       => false,
+                                            'Caption'     => 'OK',
+                                            'IconActive'  => false,
+                                            'IconValue'   => '',
+                                            'ColorActive' => true,
+                                            'ColorValue'  => -1,
+                                        ],
+                                        [
+                                            'Value'       => true,
+                                            'Caption'     => $this->Translate('Alert'),
+                                            'IconActive'  => false,
+                                            'IconValue'   => '',
+                                            'ColorActive' => true,
+                                            'ColorValue'  => 16711680,
+                                        ]
+
+                                    ]
+                                ),
+                                'PREFIX'     => '',
+                                'SUFFIX'     => '',
+                                'USAGE_TYPE' => 0,
+                            ]
+                        );
                         $this->SetValueBoolean('ALARM', ($Message->Payload[15] === chr(0x02)));
                         break;
                     case 0x39: // MESSUNG
@@ -469,31 +567,189 @@ class GHomaPlug extends IPSModuleStrict
                         $Value = unpack('N', $Part)[1];
                         switch (ord($Message->Payload[16])) {
                             case 0x01: // Watt
-                                $this->RegisterVariableFloat('Power', $this->Translate('Power'), 'Watt.14490');
+                                $this->RegisterVariableFloat(
+                                    'Power',
+                                    $this->Translate('Power'),
+                                    [
+                                        'PRESENTATION' => VARIABLE_PRESENTATION_VALUE_PRESENTATION,
+                                        'TEMPLATE'     => VARIABLE_TEMPLATE_VALUE_PRESENTATION_POWER,
+                                    ],
+                                    3
+                                );
                                 $this->SetValueFloat('Power', $Value / 100);
                                 break;
                             case 0x02: // Verbrauch
-                                $this->RegisterVariableFloat('Consumption', $this->Translate('Consumption'), 'Electricity');
+                                $this->RegisterVariableFloat(
+                                    'Consumption',
+                                    $this->Translate('Consumption'),
+                                    [
+                                        'ICON'                => 'bolt',
+                                        'DECIMAL_SEPARATOR'   => 'Client',
+                                        'COLOR'               => -1,
+                                        'DISPLAY_TYPE'        => 0,
+                                        'CONTENT_COLOR'       => -1,
+                                        'DIGITS'              => 2,
+                                        'INTERVALS'           => json_encode([
+                                            [
+                                                'ColorDisplay'        => -1,
+                                                'ContentColorDisplay' => -1,
+                                                'IntervalMinValue'    => 0.001,
+                                                'IntervalMaxValue'    => 1,
+                                                'ConstantActive'      => false,
+                                                'ConstantValue'       => '',
+                                                'ConversionFactor'    => 0.001,
+                                                'PrefixActive'        => false,
+                                                'PrefixValue'         => '',
+                                                'SuffixActive'        => true,
+                                                'SuffixValue'         => ' Wh',
+                                                'DigitsActive'        => false,
+                                                'DigitsValue'         => 2,
+                                                'IconActive'          => false,
+                                                'IconValue'           => '',
+                                                'ColorActive'         => false,
+                                                'ColorValue'          => -1,
+                                                'ContentColorActive'  => false,
+                                                'ContentColorValue'   => -1,
+                                            ],
+                                            [
+                                                'ColorDisplay'        => -1,
+                                                'ContentColorDisplay' => -1,
+                                                'IntervalMinValue'    => 1000,
+                                                'IntervalMaxValue'    => 999999,
+                                                'ConstantActive'      => false,
+                                                'ConstantValue'       => '',
+                                                'ConversionFactor'    => 1000,
+                                                'PrefixActive'        => false,
+                                                'PrefixValue'         => '',
+                                                'SuffixActive'        => true,
+                                                'SuffixValue'         => 'MWh',
+                                                'DigitsActive'        => true,
+                                                'DigitsValue'         => 2,
+                                                'IconActive'          => false,
+                                                'IconValue'           => '',
+                                                'ColorActive'         => false,
+                                                'ColorValue'          => -1,
+                                                'ContentColorActive'  => false,
+                                                'ContentColorValue'   => -1,
+                                            ],
+                                        ]),
+                                        'INTERVALS_ACTIVE'    => true,
+                                        'MAX'                 => 0,
+                                        'PRESENTATION'        => VARIABLE_PRESENTATION_VALUE_PRESENTATION,
+                                        'MIN'                 => 0,
+                                        'PERCENTAGE'          => false,
+                                        'PREFIX'              => '',
+                                        'PREVIEW_STYLE'       => 1,
+                                        'SHOW_PREVIEW'        => true,
+                                        'SUFFIX'              => ' kWh',
+                                        'THOUSANDS_SEPARATOR' => '',
+                                        'USAGE_TYPE'          => 0,
+                                    ],
+                                    4
+                                );
                                 $this->SetValueFloat('Consumption', $Value / 1000);
                                 break;
                             case 0x03: // Volt
-                                $this->RegisterVariableFloat('Voltage', $this->Translate('Voltage'), 'Volt.230');
+                                $this->RegisterVariableFloat(
+                                    'Voltage',
+                                    $this->Translate('Voltage'),
+                                    [
+                                        'MIN'              => 207,
+                                        'DIGITS'           => 1,
+                                        'MULTILINE'        => false,
+                                        'ICON'             => 'Electricity',
+                                        'MAX'              => 253,
+                                        'PRESENTATION'     => VARIABLE_PRESENTATION_VALUE_PRESENTATION,
+                                        'INTERVALS'        => '[]',
+                                        'INTERVALS_ACTIVE' => false,
+                                        'PERCENTAGE'       => false,
+                                        'PREFIX'           => '',
+                                        'SUFFIX'           => ' V',
+                                        'USAGE_TYPE'       => 0
+                                    ],
+                                    5
+                                );
                                 $this->SetValueFloat('Voltage', $Value / 100);
                                 break;
                             case 0x04: // Ampere
-                                $this->RegisterVariableFloat('Current', $this->Translate('Current'), 'Ampere');
+                                $this->RegisterVariableFloat(
+                                    'Current',
+                                    $this->Translate('Current'),
+                                    [
+                                        'ICON'                => 'Electricity',
+                                        'DECIMAL_SEPARATOR'   => 'Client',
+                                        'COLOR'               => -1,
+                                        'DISPLAY_TYPE'        => 0,
+                                        'CONTENT_COLOR'       => -1,
+                                        'DIGITS'              => 2,
+                                        'INTERVALS'           => '[]',
+                                        'INTERVALS_ACTIVE'    => false,
+                                        'MAX'                 => 0,
+                                        'PRESENTATION'        => VARIABLE_PRESENTATION_VALUE_PRESENTATION,
+                                        'MIN'                 => 0,
+                                        'PERCENTAGE'          => false,
+                                        'PREFIX'              => '',
+                                        'PREVIEW_STYLE'       => 1,
+                                        'SHOW_PREVIEW'        => true,
+                                        'SUFFIX'              => ' A',
+                                        'THOUSANDS_SEPARATOR' => '',
+                                        'USAGE_TYPE'          => 0
+                                    ],
+                                    6
+                                );
                                 $this->SetValueFloat('Current', $Value / 100);
                                 break;
                             case 0x05: // Hertz
-                                $this->RegisterVariableFloat('Frequenz', $this->Translate('Frequenz'), 'Hertz.50');
+                                $this->RegisterVariableFloat(
+                                    'Frequenz',
+                                    $this->Translate('Frequenz'),
+                                    [
+                                        'MIN'              => 0,
+                                        'DIGITS'           => 2,
+                                        'MULTILINE'        => false,
+                                        'ICON'             => 'Electricity',
+                                        'MAX'              => 0,
+                                        'PRESENTATION'     => VARIABLE_PRESENTATION_VALUE_PRESENTATION,
+                                        'INTERVALS'        => '[]',
+                                        'INTERVALS_ACTIVE' => false,
+                                        'PERCENTAGE'       => false,
+                                        'PREFIX'           => '',
+                                        'SUFFIX'           => ' Hz',
+                                        'USAGE_TYPE'       => 0,
+                                    ],
+                                    7
+                                );
                                 $this->SetValueFloat('Frequenz', $Value / 100);
                                 break;
                             case 0x07: // Scheinleistung
-                                $this->RegisterVariableFloat('Output', $this->Translate('Output'), 'GHoma.VA');
+                                $this->RegisterVariableFloat(
+                                    'Output',
+                                    $this->Translate('Output'),
+                                    [
+                                        'MIN'              => 0,
+                                        'DIGITS'           => 2,
+                                        'MULTILINE'        => false,
+                                        'ICON'             => '',
+                                        'MAX'              => 0,
+                                        'PRESENTATION'     => VARIABLE_PRESENTATION_VALUE_PRESENTATION,
+                                        'INTERVALS'        => '[]',
+                                        'INTERVALS_ACTIVE' => false,
+                                        'PERCENTAGE'       => false,
+                                        'PREFIX'           => '',
+                                        'SUFFIX'           => ' VA',
+                                        'USAGE_TYPE'       => 0
+                                    ],
+                                    8
+                                );
                                 $this->SetValueFloat('Output', $Value / 100);
                                 break;
                             case 0x08: // Leistungsfaktor
-                                $this->RegisterVariableFloat('PowerFactor', $this->Translate('Powerfactor'), '');
+                                $this->RegisterVariableFloat(
+                                    'PowerFactor',
+                                    $this->Translate('Power factor'),
+                                    [],
+                                    9
+                                );
                                 $this->SetValueFloat('PowerFactor', $Value / 100);
                                 break;
                         }
@@ -505,8 +761,19 @@ class GHomaPlug extends IPSModuleStrict
                 // FE
                 // 01 0A C0 35 23 D3 3D 02 00 00 00 0F
         }
-        $this->SetTimerInterval('HeartbeatTimeout', 44 * 1000);
+        $this->SetTimerInterval(\GHoma\Device\Timer::HeartbeatTimeout, 60 * 1000);
+    }
+
+    /**
+     * ModulErrorHandler
+     *
+     * @param  int $errno
+     * @param  string $errstr
+     * @return bool
+     */
+    private function ModulErrorHandler(int $errno, string $errstr): bool
+    {
+        echo $errstr . PHP_EOL;
+        return true;
     }
 }
-
-/* @} */
